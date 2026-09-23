@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+:root {
+  --brand: #132152;
+  --brand-fg: #ffffff;
+  --accent: #ecbb3e;
+  --accent-fg: #000000;
+  --surface: #ffffff;
+  --surface-alt: #f3f3f3;
+  --ink: #132152;
+  --ink-muted: #555c70;
+  --border: rgba(19, 33, 82, 0.16);
+}
+
+@theme {
+  --color-brand: var(--brand);
+  --color-brand-fg: var(--brand-fg);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-border: var(--border);
+
+  --font-heading: var(--font-alfa), serif;
+  --font-nav: var(--font-bakbak), sans-serif;
+  --font-body: var(--font-poppins), sans-serif;
+}
+
+body {
+  background-color: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-body);
+  margin: 0;
+  padding: 0;
+}
+
+#site-preview,
+[data-theme="site-preview"] {
+  --color-brand: var(--brand);
+  --color-brand-fg: var(--brand-fg);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-border: var(--border);
+}

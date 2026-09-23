@@ -1,0 +1,44 @@
+{
+  "name": "niche-landing-generator",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "lint:tokens": "tsx scripts/lint-tokens.ts",
+    "tokens": "tsx scripts/tokens.ts",
+    "generate": "tsx scripts/generate.ts",
+    "validate": "tsx scripts/validate-designs.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@google/genai": "^2.22.0",
+    "cheerio": "^1.2.0",
+    "culori": "^4.0.2",
+    "face-api.js": "^0.22.2",
+    "lucide-react": "^1.47.0",
+    "next": "16.3.5",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "sharp": "^0.35.4",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/culori": "^4.0.1",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.5",
+    "playwright": "^1.63.0",
+    "prettier": "^3.9.7",
+    "tailwindcss": "^4",
+    "tsx": "^4.23.13",
+    "typescript": "^5",
+    "vitest": "^5.0.1"
+  },
+  "packageManager": "pnpm@12.4.2"
+}

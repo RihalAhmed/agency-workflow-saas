@@ -1,0 +1,110 @@
+{
+  "slug": "bugsy-s-pest-solutions",
+  "templateId": "crown-home",
+  "variantId": "a-photo-hero",
+  "business": {
+    "name": "Bugsy’s Pest Solutions",
+    "category": "pest-control",
+    "tagline": "Family-Owned Since 1988. Better Because We Care.",
+    "phone": "(561) 654 8998",
+    "email": "bugys@gmail.com",
+    "city": "Lake Worth Beach",
+    "logoPath": "/uploads/1789674497956-Group-1.webp"
+  },
+  "tokens": {
+    "brand": "#970007",
+    "brandFg": "#ffffff",
+    "accent": "#00d5c7",
+    "accentFg": "#111827",
+    "surface": "#fffcfc",
+    "surfaceAlt": "#f5eeed",
+    "ink": "#1a0706",
+    "inkMuted": "#5d4f4d",
+    "border": "#dbcdcc"
+  },
+  "sections": [
+    {
+      "type": "header",
+      "content": {
+        "tagline": "Family-Owned Since 1988. Better Because We Care.",
+        "emergencyBadge": "Same-Day Priority Service",
+        "ctaText": "GET A FREE QUOTE"
+      },
+      "images": [
+        "/uploads/1789674497956-Group-1.webp"
+      ]
+    },
+    {
+      "type": "hero",
+      "content": {
+        "headlinePrefix": "WEAR",
+        "headlineHighlight": "THE CROWN",
+        "headlineSuffix": "OF A LAKE WORTH BEACH PEST-FREE HOME",
+        "subBadges": [
+          {
+            "icon": "🛡️",
+            "text": "State Licensed & Fully Insured"
+          },
+          {
+            "icon": "👩‍👧",
+            "text": "Kid & Pet Safe Solutions"
+          },
+          {
+            "icon": "👑",
+            "text": "Family-Owned Since 1988"
+          }
+        ],
+        "ctaText": "Get pest control Help",
+        "showTrustBadges": true
+      },
+      "images": [
+        "/assets/hero-bg.jpg"
+      ]
+    },
+    {
+      "type": "quoteForm",
+      "content": {
+        "title": "REQUEST A FREE PEST CONTROL QUOTE",
+        "services": [
+          "Comprehensive Property Inspection",
+          "Targeted Treatment & Elimination",
+          "Preventative Perimeter Barrier",
+          "Eco-Friendly Maintenance Plan",
+          "Commercial & Residential Protection"
+        ],
+        "submitButtonText": "Submit"
+      },
+      "images": []
+    },
+    {
+      "type": "reviewLogos",
+      "content": {},
+      "images": [
+        "/assets/review-row.png"
+      ]
+    },
+    {
+      "type": "about",
+      "content": {
+        "badgeLabel": "About The Company",
+        "headline": "FAMILY-OWNED PROTECTION FOR LAKE WORTH BEACH HOMES.",
+        "paragraphs": [
+          "Bugsy’s Pest Solutions has been safeguarding homes across Lake Worth Beach since 1988 — established on the simple belief that reliable home service means treating every customer's home like our very own. Decades later, that foundational commitment remains unbroken. We are still proudly family-owned, still deploying vetted career technicians rather than scripted contractors, and dedicated to keeping your sanctuary secure.",
+          "Our team specializes in tailored solutions designed for our local climate and environment. As local residents themselves, our specialists understand the unique challenges properties face in Lake Worth Beach. Every treatment comes backed by our ironclad guarantee: if issues resurface between scheduled visits, our crew returns immediately at zero additional charge.",
+          "That is what wearing the crown of service means to everyone at Bugsy’s Pest Solutions — never standing above the communities we serve, but always standing firmly behind them."
+        ],
+        "ctaText": "LEARN MORE"
+      },
+      "images": [
+        "/assets/about-house.jpg"
+      ]
+    },
+    {
+      "type": "footer",
+      "content": {},
+      "images": [
+        "/uploads/1789674497956-Group-1.webp"
+      ]
+    }
+  ]
+}

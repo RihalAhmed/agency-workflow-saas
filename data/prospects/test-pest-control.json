@@ -1,0 +1,98 @@
+{
+  "site_spec_version": "1.1",
+  "slug": "test-pest-control",
+  "templateId": "crown-home",
+  "variantId": "a-photo-hero",
+  "business": {
+    "name": "Test Pest Control",
+    "category": "pest-control",
+    "tagline": "Family-Owned Since 1988. Better Because We Care.",
+    "phone": "(904) 743-1132",
+    "email": "crownpestcontroljax@gmail.com",
+    "city": "Jacksonville",
+    "logoPath": "/assets/logo.png",
+    "trustBadges": []
+  },
+  "tokens": {
+    "brand": "#0b1d4c",
+    "brandFg": "#ffffff",
+    "accent": "#eab430",
+    "accentFg": "#111827",
+    "surface": "#fffdfa",
+    "surfaceAlt": "#f3f0ea",
+    "ink": "#140c00",
+    "inkMuted": "#585246",
+    "border": "#d5d0c6"
+  },
+  "sections": [
+    {
+      "type": "header",
+      "content": {
+        "tagline": "Family-Owned Since 1988. Better Because We Care.",
+        "emergencyBadge": "Same-Day Priority Service",
+        "ctaText": "GET A FREE QUOTE"
+      },
+      "images": [
+        "/assets/logo.png"
+      ]
+    },
+    {
+      "type": "hero",
+      "content": {
+        "headlinePrefix": "WEAR",
+        "headlineHighlight": "THE CROWN",
+        "headlineSuffix": "OF A JACKSONVILLE PEST-FREE HOME",
+        "subBadges": [
+          {
+            "icon": "🛡️",
+            "text": "State Licensed & Fully Insured"
+          }
+        ],
+        "ctaText": "Get pest control Help",
+        "showTrustBadges": true
+      },
+      "images": [
+        "/assets/hero-bg.jpg"
+      ]
+    },
+    {
+      "type": "quoteForm",
+      "content": {
+        "title": "REQUEST A FREE PEST CONTROL QUOTE",
+        "services": [
+          "Comprehensive Property Inspection"
+        ],
+        "submitButtonText": "Submit"
+      },
+      "images": []
+    },
+    {
+      "type": "reviewLogos",
+      "content": {},
+      "images": [
+        "/assets/review-row.png"
+      ]
+    },
+    {
+      "type": "about",
+      "content": {
+        "badgeLabel": "About The Company",
+        "headline": "FAMILY-OWNED PROTECTION FOR JACKSONVILLE HOMES.",
+        "paragraphs": [
+          "Test Pest Control has been safeguarding homes across Jacksonville since 1988 — established on the simple belief that reliable home service means treating every customer's home like our very own. Decades later, that foundational commitment remains unbroken. We are still proudly family-owned, still deploying vetted career technicians rather than scripted contractors, and dedicated to keeping your sanctuary secure."
+        ],
+        "ctaText": "LEARN MORE"
+      },
+      "images": [
+        "/assets/about-house.jpg"
+      ]
+    },
+    {
+      "type": "footer",
+      "content": {},
+      "images": [
+        "/assets/logo.png"
+      ]
+    }
+  ]
+}

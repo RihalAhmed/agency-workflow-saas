@@ -1,0 +1,164 @@
+{
+  "design_schema_version": "1.1",
+  "id": "crown-home",
+  "name": "Crown Home Services",
+  "niche": ["pest-control", "roofing", "hvac", "plumbing", "landscaping"],
+  "styleTags": ["bold", "photo-led", "trust-heavy"],
+  "editable_fields": [
+    {
+      "id": "header.tagline",
+      "section": "header",
+      "type": "text",
+      "label": "Top Bar Tagline"
+    },
+    {
+      "id": "header.emergencyBadge",
+      "section": "header",
+      "type": "text",
+      "label": "Emergency Badge Text"
+    },
+    {
+      "id": "header.ctaText",
+      "section": "header",
+      "type": "text",
+      "label": "Header CTA Button Text",
+      "defaultValue": "GET A FREE QUOTE"
+    },
+    {
+      "id": "hero.headlinePrefix",
+      "section": "hero",
+      "type": "text",
+      "label": "Hero Headline Prefix"
+    },
+    {
+      "id": "hero.headlineHighlight",
+      "section": "hero",
+      "type": "text",
+      "label": "Hero Highlighted Phrase (Accent Color)"
+    },
+    {
+      "id": "hero.headlineSuffix",
+      "section": "hero",
+      "type": "text",
+      "label": "Hero Headline Suffix"
+    },
+    {
+      "id": "hero.ctaText",
+      "section": "hero",
+      "type": "text",
+      "label": "Hero CTA Button Text"
+    },
+    {
+      "id": "hero.backgroundImage",
+      "section": "hero",
+      "type": "image",
+      "label": "Hero Background Image"
+    },
+    {
+      "id": "quoteForm.title",
+      "section": "quoteForm",
+      "type": "text",
+      "label": "Quote Form Title"
+    },
+    {
+      "id": "quoteForm.submitButtonText",
+      "section": "quoteForm",
+      "type": "text",
+      "label": "Submit Button Text",
+      "defaultValue": "Submit"
+    },
+    {
+      "id": "about.badgeLabel",
+      "section": "about",
+      "type": "text",
+      "label": "About Section Badge Label",
+      "defaultValue": "About The Company"
+    },
+    {
+      "id": "about.headline",
+      "section": "about",
+      "type": "text",
+      "label": "About Section Headline"
+    },
+    {
+      "id": "about.ctaText",
+      "section": "about",
+      "type": "text",
+      "label": "About CTA Button Text",
+      "defaultValue": "LEARN MORE"
+    },
+    {
+      "id": "about.image",
+      "section": "about",
+      "type": "image",
+      "label": "About Section Photo"
+    }
+  ],
+  "sections": [
+    {
+      "id": "header",
+      "type": "header",
+      "required": true,
+      "min_count": 1,
+      "max_count": 1
+    },
+    {
+      "id": "hero",
+      "type": "hero",
+      "required": true,
+      "min_count": 1,
+      "max_count": 1
+    },
+    {
+      "id": "quoteForm",
+      "type": "quoteForm",
+      "required": true,
+      "min_count": 1,
+      "max_count": 1
+    },
+    {
+      "id": "reviewLogos",
+      "type": "reviewLogos",
+      "required": false,
+      "min_count": 1,
+      "max_count": 1
+    },
+    {
+      "id": "about",
+      "type": "about",
+      "required": true,
+      "min_count": 1,
+      "max_count": 1
+    },
+    {
+      "id": "footer",
+      "type": "footer",
+      "required": true,
+      "min_count": 1,
+      "max_count": 1
+    }
+  ],
+  "image_slots": [
+    {
+      "id": "hero-background",
+      "section": "hero",
+      "role": "hero-bg",
+      "aspect_hint": "landscape",
+      "face_expected": false
+    },
+    {
+      "id": "about-photo",
+      "section": "about",
+      "role": "about",
+      "aspect_hint": "portrait",
+      "face_expected": false
+    },
+    {
+      "id": "business-logo",
+      "section": "header",
+      "role": "logo",
+      "aspect_hint": "landscape",
+      "face_expected": false
+    }
+  ]
+}

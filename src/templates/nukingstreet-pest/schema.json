@@ -1,0 +1,181 @@
+{
+  "design_schema_version": "1.1",
+  "id": "nukingstreet-pest",
+  "name": "Nukingstreet Pest Control",
+  "niche": ["pest-control", "wildlife-control"],
+  "styleTags": ["clean", "modern", "trust-focused", "dark-accents"],
+  "editable_fields": [
+    {
+      "id": "header.tagline",
+      "section": "header",
+      "type": "text",
+      "label": "Top Bar Tagline",
+      "defaultValue": "Trusted Pest & Wildlife Experts"
+    },
+    {
+      "id": "header.businessReg",
+      "section": "header",
+      "type": "text",
+      "label": "Business Registration Number",
+      "defaultValue": "B-2562"
+    },
+    {
+      "id": "hero.headlinePrefix",
+      "section": "hero",
+      "type": "text",
+      "label": "Hero Headline Prefix",
+      "defaultValue": "Got Pests?"
+    },
+    {
+      "id": "hero.headlineHighlight",
+      "section": "hero",
+      "type": "text",
+      "label": "Hero Highlighted Phrase",
+      "defaultValue": "Nuke 'Em."
+    },
+    {
+      "id": "hero.headlineSuffix",
+      "section": "hero",
+      "type": "text",
+      "label": "Hero Headline Suffix",
+      "defaultValue": "The Smart Way."
+    },
+    {
+      "id": "hero.aiBadgeTitle",
+      "section": "hero",
+      "type": "text",
+      "label": "AI Badge Title",
+      "defaultValue": "AI-Powered Remote Monitoring"
+    },
+    {
+      "id": "hero.aiBadgeDesc",
+      "section": "hero",
+      "type": "text",
+      "label": "AI Badge Description",
+      "defaultValue": "High-tech protection between visits — we're watching so you don't have to."
+    },
+    {
+      "id": "quoteForm.title",
+      "section": "quoteForm",
+      "type": "text",
+      "label": "Quote Form Title",
+      "defaultValue": "Get Your Free Estimate"
+    },
+    {
+      "id": "about.headline",
+      "section": "about",
+      "type": "text",
+      "label": "About Section Headline",
+      "defaultValue": "About Us – Guardians of Your Home. Stewards of the Environment."
+    },
+    {
+      "id": "about.subhead",
+      "section": "about",
+      "type": "text",
+      "label": "About Section Subhead",
+      "defaultValue": "Founded 2007 · Enfield, Connecticut"
+    },
+    {
+      "id": "testimonials.title",
+      "section": "testimonials",
+      "type": "text",
+      "label": "Testimonials Title",
+      "defaultValue": "Testimonials"
+    },
+    {
+      "id": "testimonials.subtitle",
+      "section": "testimonials",
+      "type": "text",
+      "label": "Testimonials Subtitle",
+      "defaultValue": "Real feedback from satisfied customers who trust our pest control results."
+    }
+  ],
+  "sections": [
+    {
+      "id": "header",
+      "type": "header",
+      "required": true,
+      "min_count": 1,
+      "max_count": 1
+    },
+    {
+      "id": "hero",
+      "type": "hero",
+      "required": true,
+      "min_count": 1,
+      "max_count": 1
+    },
+    {
+      "id": "quoteForm",
+      "type": "quoteForm",
+      "required": true,
+      "min_count": 1,
+      "max_count": 1
+    },
+    {
+      "id": "reviewLogos",
+      "type": "reviewLogos",
+      "required": false,
+      "min_count": 1,
+      "max_count": 1
+    },
+    {
+      "id": "about",
+      "type": "about",
+      "required": true,
+      "min_count": 1,
+      "max_count": 1
+    },
+    {
+      "id": "testimonials",
+      "type": "testimonials",
+      "required": true,
+      "min_count": 3,
+      "max_count": 6
+    },
+    {
+      "id": "footer",
+      "type": "footer",
+      "required": true,
+      "min_count": 1,
+      "max_count": 1
+    }
+  ],
+  "image_slots": [
+    {
+      "id": "hero-background",
+      "section": "hero",
+      "role": "hero-bg",
+      "aspect_hint": "landscape",
+      "face_expected": false
+    },
+    {
+      "id": "hero-owner",
+      "section": "hero",
+      "role": "owner-overlay",
+      "aspect_hint": "portrait",
+      "face_expected": true
+    },
+    {
+      "id": "business-logo",
+      "section": "header",
+      "role": "logo",
+      "aspect_hint": "landscape",
+      "face_expected": false
+    },
+    {
+      "id": "about-photo",
+      "section": "about",
+      "role": "about",
+      "aspect_hint": "landscape",
+      "face_expected": false
+    },
+    {
+      "id": "header-mascot",
+      "section": "header",
+      "role": "brand-mascot",
+      "aspect_hint": "square",
+      "face_expected": false
+    }
+  ]
+}

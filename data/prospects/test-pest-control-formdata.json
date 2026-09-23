@@ -1,0 +1,91 @@
+{
+  "site_spec_version": "1.1",
+  "slug": "test-pest-control-formdata",
+  "templateId": "nukingstreet-pest",
+  "variantId": "a-photo-hero",
+  "business": {
+    "name": "Test Pest Control FormData",
+    "category": "pest-control",
+    "tagline": "Family-Owned Since 1988. Better Because We Care.",
+    "phone": "(904) 743-1132",
+    "email": "crownpestcontroljax@gmail.com",
+    "city": "Jacksonville",
+    "logoPath": "/assets/logo.png",
+    "trustBadges": []
+  },
+  "tokens": {
+    "brand": "#0b1d4c",
+    "brandFg": "#ffffff",
+    "accent": "#eab430",
+    "accentFg": "#111827",
+    "surface": "#fffdfa",
+    "surfaceAlt": "#f3f0ea",
+    "ink": "#140c00",
+    "inkMuted": "#585246",
+    "border": "#d5d0c6"
+  },
+  "sections": [
+    {
+      "type": "header",
+      "content": {
+        "tagline": "Family-Owned Since 1988. Better Because We Care."
+      },
+      "images": [
+        "/assets/logo.png"
+      ]
+    },
+    {
+      "type": "hero",
+      "content": {
+        "headlinePrefix": "WEAR",
+        "headlineHighlight": "THE CROWN",
+        "headlineSuffix": "OF A JACKSONVILLE PEST-FREE HOME",
+        "aiBadgeTitle": "AI-Powered Remote Monitoring",
+        "aiBadgeDesc": "High-tech protection between visits — we're watching so you don't have to.",
+        "ctaText": "Get pest control Help"
+      },
+      "images": [
+        "/assets/hero-bg.jpg"
+      ]
+    },
+    {
+      "type": "quoteForm",
+      "content": {
+        "title": "REQUEST A FREE PEST CONTROL QUOTE"
+      },
+      "images": []
+    },
+    {
+      "type": "reviewLogos",
+      "content": {},
+      "images": []
+    },
+    {
+      "type": "about",
+      "content": {
+        "headline": "FAMILY-OWNED PROTECTION FOR JACKSONVILLE HOMES.",
+        "subhead": "Founded 2007 · Enfield, Connecticut",
+        "paragraph1": "Test Pest Control FormData has been safeguarding homes across Jacksonville since 1988 — established on the simple belief that reliable home service means treating every customer's home like our very own. Decades later, that foundational commitment remains unbroken. We are still proudly family-owned, still deploying vetted career technicians rather than scripted contractors, and dedicated to keeping your sanctuary secure.",
+        "paragraph2": ""
+      },
+      "images": [
+        "/assets/about-house.jpg"
+      ]
+    },
+    {
+      "type": "testimonials",
+      "content": {
+        "title": "Testimonials",
+        "subtitle": "Real feedback from satisfied customers"
+      },
+      "images": []
+    },
+    {
+      "type": "footer",
+      "content": {},
+      "images": [
+        "/assets/logo.png"
+      ]
+    }
+  ]
+}

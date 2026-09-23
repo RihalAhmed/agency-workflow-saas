@@ -1,0 +1,111 @@
+{
+  "slug": "the-luxury-watch-agency",
+  "templateId": "crown-home",
+  "variantId": "a-photo-hero",
+  "business": {
+    "name": "The Luxury Watch Agency",
+    "category": "pest-control",
+    "tagline": "Family-Owned Since 1979. Better Because We Care.",
+    "phone": "123412341234",
+    "email": "rihalahmed10@gmail.compng",
+    "city": "new york",
+    "logoPath": "/assets/logo.png"
+  },
+  "tokens": {
+    "brand": "#0f2252",
+    "brandFg": "#ffffff",
+    "accent": "#eab430",
+    "accentFg": "#111827",
+    "surface": "#fffdfa",
+    "surfaceAlt": "#f3f0ea",
+    "ink": "#140c00",
+    "inkMuted": "#585246",
+    "border": "#d5d0c6"
+  },
+  "sections": [
+    {
+      "type": "header",
+      "content": {
+        "tagline": "Family-Owned Since 1979. Better Because We Care.",
+        "emergencyBadge": "24/7 Emergency Support",
+        "ctaText": "GET A FREE QUOTE"
+      },
+      "images": [
+        "/assets/logo.png"
+      ]
+    },
+    {
+      "type": "hero",
+      "content": {
+        "headlinePrefix": "WEAR",
+        "headlineHighlight": "THE CROWN",
+        "headlineSuffix": "OF A PEST FREE HOME",
+        "subBadges": [
+          {
+            "icon": "🛡️",
+            "text": "State Licensed & Insured"
+          },
+          {
+            "icon": "👩‍👧",
+            "text": "Kid & Pet Safe"
+          },
+          {
+            "icon": "👑",
+            "text": "Family-Owned Since 1979"
+          }
+        ],
+        "ctaText": "Get Pest control Help",
+        "showTrustBadges": true
+      },
+      "images": [
+        "/assets/hero-bg.jpg"
+      ]
+    },
+    {
+      "type": "quoteForm",
+      "content": {
+        "title": "REQUEST A FREE PEST CONTROL QUOTE",
+        "services": [
+          "General Pest Inspection",
+          "Termite Treatment & Prevention",
+          "Rodent & Wildlife Exclusion",
+          "Mosquito & Yard Barrier",
+          "Bed Bug Eradication",
+          "Commercial Facility Protection"
+        ],
+        "submitButtonText": "Submit"
+      },
+      "images": []
+    },
+    {
+      "type": "reviewLogos",
+      "content": {},
+      "images": [
+        "/assets/review-row.png"
+      ]
+    },
+    {
+      "type": "about",
+      "content": {
+        "badgeLabel": "About The Company",
+        "headline": "FAMILY-OWNED PROTECTION FOR NEW YORK HOMES.",
+        "paragraphs": [
+          "The Luxury Watch Agency has been protecting new york homes since 1979 — long before 'pest control' meant anything more than a family showing up, doing the job right, and treating your home like it was their own. Four decades later, that hasn't changed. We're still family-owned. We still send real technicians, not scripts. And we still believe a home should feel like a home — not a battleground.",
+          "Every treatment we run comes with a simple promise: if pests come back between visits, so do we, free of charge. No fine print, no upsells, no excuses. Just honest work from a team that's been earning new york's trust one home at a time for over 45 years.",
+          "That's what wearing the crown means to us — not standing above our customers, but standing behind them."
+        ],
+        "ctaText": "LEARN MORE"
+      },
+      "images": [
+        "/assets/about-house.jpg"
+      ]
+    },
+    {
+      "type": "footer",
+      "content": {},
+      "images": [
+        "/assets/logo.png"
+      ]
+    }
+  ]
+}

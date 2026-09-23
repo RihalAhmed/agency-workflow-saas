@@ -1,0 +1,104 @@
+{
+  "site_spec_version": "1.1",
+  "slug": "crown-pest-control",
+  "templateId": "crown-home",
+  "variantId": "a-photo-hero",
+  "business": {
+    "name": "Crown Pest Control",
+    "category": "pest-control",
+    "tagline": "Family-Owned Since 2007. Better Because We Care.",
+    "phone": "(904) 743-1132",
+    "email": "crownpestcontroljax@gmail.com",
+    "city": "Jacksonville",
+    "logoPath": "/uploads/1790063960040-Nukingstreet-Pest-Control-Logo-Venus-No-Background-1.webp",
+    "trustBadges": [
+      "angi-approved",
+      "yelp",
+      "bbb",
+      "qualitypro-certified",
+      "facebook"
+    ]
+  },
+  "tokens": {
+    "brand": "#041a32",
+    "brandFg": "#ffffff",
+    "accent": "#6b933c",
+    "accentFg": "#111827",
+    "surface": "#fcfefb",
+    "surfaceAlt": "#eef1ec",
+    "ink": "#081002",
+    "inkMuted": "#4f5549",
+    "border": "#ced3c9"
+  },
+  "sections": [
+    {
+      "type": "header",
+      "content": {
+        "tagline": "Family-Owned Since 2007. Better Because We Care.",
+        "emergencyBadge": "Same-Day Priority Service",
+        "ctaText": "GET A FREE QUOTE"
+      },
+      "images": [
+        "/uploads/1790063960040-Nukingstreet-Pest-Control-Logo-Venus-No-Background-1.webp"
+      ]
+    },
+    {
+      "type": "hero",
+      "content": {
+        "headlinePrefix": "EXPERIENCE",
+        "headlineHighlight": "NATURAL DEFENSE",
+        "headlineSuffix": "FOR JACKSONVILLE HOMES",
+        "subBadges": [
+          {
+            "icon": "🌿",
+            "text": "100% Eco-Friendly & Safe"
+          }
+        ],
+        "ctaText": "Get pest control Help",
+        "showTrustBadges": true
+      },
+      "images": [
+        "/uploads/1790063960039-v5-55270-section-2-inline.webp"
+      ]
+    },
+    {
+      "type": "quoteForm",
+      "content": {
+        "title": "REQUEST A FREE PEST CONTROL QUOTE",
+        "services": [
+          "Comprehensive Property Inspection"
+        ],
+        "submitButtonText": "Submit"
+      },
+      "images": []
+    },
+    {
+      "type": "reviewLogos",
+      "content": {},
+      "images": [
+        "/assets/review-row.png"
+      ]
+    },
+    {
+      "type": "about",
+      "content": {
+        "badgeLabel": "About The Company",
+        "headline": "FAMILY-OWNED PROTECTION FOR JACKSONVILLE HOMES.",
+        "paragraphs": [
+          "Crown Pest Control has been safeguarding homes across Jacksonville since 2007 — established on the simple belief that reliable home service means treating every customer's home like our very own. Decades later, that foundational commitment remains unbroken. We are still proudly family-owned, still deploying vetted career technicians rather than scripted contractors, and dedicated to keeping your sanctuary secure."
+        ],
+        "ctaText": "LEARN MORE"
+      },
+      "images": [
+        "/uploads/1790063960035-7D1DBE32-CDBF-46D2-BD31-5DD57DB1D52F.png"
+      ]
+    },
+    {
+      "type": "footer",
+      "content": {},
+      "images": [
+        "/uploads/1790063960040-Nukingstreet-Pest-Control-Logo-Venus-No-Background-1.webp"
+      ]
+    }
+  ]
+}
