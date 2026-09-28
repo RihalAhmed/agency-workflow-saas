@@ -20,7 +20,7 @@ export function CheckCard({
 }: CheckCardProps) {
   return (
     <div
-      className="mb-6 last:mb-0"
+      className="bg-[#111630] border border-white/[0.06] rounded-xl p-4 hover:border-white/[0.1] hover:bg-[#131838] transition-all flex flex-col gap-3"
       data-status={isPlaceholder ? "placeholder" : undefined}
     >
       <div className="flex items-start justify-between gap-4 mb-2">
@@ -43,8 +43,8 @@ export function CheckCard({
         </div>
       </div>
       {explanation && (
-        <div className="bg-[#6366f1]/10 rounded-lg p-3 border border-[#6366f1]/20">
-          <p className="text-[13px] text-indigo-200/80 leading-relaxed">
+        <div className="bg-indigo-500/10 rounded-lg p-3 border border-indigo-500/20">
+          <p className="text-[13px] text-indigo-200/90 leading-relaxed">
             {explanation}
           </p>
         </div>

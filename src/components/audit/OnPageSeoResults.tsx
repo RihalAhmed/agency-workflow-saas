@@ -50,7 +50,7 @@ export function OnPageSeoResults({ scores }: { scores: CheckItem[] }) {
       {/* Group 1: Meta & Snippet */}
       <div>
         <h3 className="text-[15px] font-semibold text-white mb-4">1. Meta & Snippet</h3>
-        <div className="bg-[#111630] border border-white/[0.06] rounded-2xl p-5">
+        <div className="flex flex-col gap-3">
           {titleTag && (
             <CheckCard
               label="Title Tag"
@@ -93,7 +93,7 @@ export function OnPageSeoResults({ scores }: { scores: CheckItem[] }) {
       {/* Group 2: Structure & Keywords */}
       <div>
         <h3 className="text-[15px] font-semibold text-white mb-4">2. Structure & Keywords</h3>
-        <div className="bg-[#111630] border border-white/[0.06] rounded-2xl p-5">
+        <div className="flex flex-col gap-3">
           {h1Usage && (
             <CheckCard
               label="H1 Usage"
@@ -141,7 +141,7 @@ export function OnPageSeoResults({ scores }: { scores: CheckItem[] }) {
       {/* Group 3: Images */}
       <div>
         <h3 className="text-[15px] font-semibold text-white mb-4">3. Images</h3>
-        <div className="bg-[#111630] border border-white/[0.06] rounded-2xl p-5">
+        <div className="flex flex-col gap-3">
           {imageAlt && (
             <CheckCard
               label="Image Alt Attributes"
@@ -156,7 +156,7 @@ export function OnPageSeoResults({ scores }: { scores: CheckItem[] }) {
       {/* Group 4: Technical/Crawlability */}
       <div>
         <h3 className="text-[15px] font-semibold text-white mb-4">4. Technical / Crawlability</h3>
-        <div className="bg-[#111630] border border-white/[0.06] rounded-2xl p-5">
+        <div className="flex flex-col gap-3">
           {canonicalTag && (
             <CheckCard
               label="Canonical Tag"
@@ -212,7 +212,7 @@ export function OnPageSeoResults({ scores }: { scores: CheckItem[] }) {
       {/* Group 5: Tracking & Structured Data */}
       <div>
         <h3 className="text-[15px] font-semibold text-white mb-4">5. Tracking & Structured Data</h3>
-        <div className="bg-[#111630] border border-white/[0.06] rounded-2xl p-5">
+        <div className="flex flex-col gap-3">
           {analytics && (
             <CheckCard
               label="Analytics Tools"

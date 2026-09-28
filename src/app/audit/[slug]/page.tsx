@@ -533,7 +533,7 @@ export default function AuditResults({
 
           {/* ——— Hero Summary (Phase 1 Redesign) ——— */}
           <div className="bg-[#111630] border border-white/[0.06] rounded-2xl p-4">
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
               {/* Overall circle */}
               <button
                 onClick={() => setActiveCategory(null)}
@@ -581,6 +581,26 @@ export default function AuditResults({
                   />
                 );
               })}
+            </div>
+
+            {/* Secondary Categories (Unreachable by 5 circles) */}
+            <div className="flex items-center gap-2 mt-2 pt-3 border-t border-white/[0.06] overflow-x-auto scrollbar-hide">
+              <span className="text-[11px] text-slate-500 font-medium shrink-0 mr-1">More Categories:</span>
+              {categoryScoresData
+                .filter((c) => !["onPageSeo", "usability", "geo", "performance"].includes(c.key))
+                .map((cat) => (
+                  <button
+                    key={cat.key}
+                    onClick={() => setActiveCategory(activeCategory === cat.key ? null : cat.key)}
+                    className={`px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-all border ${
+                      activeCategory === cat.key
+                        ? "bg-white/[0.1] text-white border-white/[0.2]"
+                        : "bg-white/[0.03] text-slate-400 border-white/[0.06] hover:bg-white/[0.06]"
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+              ))}
             </div>
           </div>
 
