@@ -83,9 +83,42 @@ export function calculateScores(results: CheckResult[]): {
       categoryNumeric[cat] = 0;
       continue;
     }
-    const total = checks.reduce((sum, c) => sum + statusToScore(c.status), 0);
-    const max = checks.length * 2;
-    categoryNumeric[cat] = Math.round((total / max) * 100);
+
+    if (cat === "performance") {
+      // For performance, the pagespeed_insights score should be the main driver.
+      // If it exists, let's use a weighted average where PSI is 80% and the rest is 20%.
+      // Alternatively, if it has a direct numeric score in data.desktop/mobile, average them.
+      const psiCheck = checks.find(c => c.key === "pagespeed_insights");
+      const psiData = psiCheck?.data as any;
+      // New audits carry an explicit `available` flag; older saved audits stored a failed call as 0.
+      const isKnown = (d: any) =>
+        typeof d?.score === "number" && (d.available !== undefined ? d.available : d.score > 0);
+      const knownPsi = [psiData?.mobile, psiData?.desktop].filter(isKnown).map((d: any) => d.score as number);
+      const otherChecks = checks.filter(c => c.key !== "pagespeed_insights");
+      if (knownPsi.length > 0) {
+        const avgPsiScore = Math.round(knownPsi.reduce((a, b) => a + b, 0) / knownPsi.length);
+        
+        // Calculate score of other checks
+        let otherScore = 100;
+        if (otherChecks.length > 0) {
+          const totalOther = otherChecks.reduce((sum, c) => sum + statusToScore(c.status), 0);
+          const maxOther = otherChecks.length * 2;
+          otherScore = (totalOther / maxOther) * 100;
+        }
+
+        // Weight: 70% PSI, 30% others
+        categoryNumeric[cat] = Math.round((avgPsiScore * 0.7) + (otherScore * 0.3));
+      } else {
+        const scored = otherChecks.length > 0 ? otherChecks : checks;
+        const total = scored.reduce((sum, c) => sum + statusToScore(c.status), 0);
+        const max = scored.length * 2;
+        categoryNumeric[cat] = Math.round((total / max) * 100);
+      }
+    } else {
+      const total = checks.reduce((sum, c) => sum + statusToScore(c.status), 0);
+      const max = checks.length * 2;
+      categoryNumeric[cat] = Math.round((total / max) * 100);
+    }
   }
 
   // Build categoryScores with grades or pass/fail summaries

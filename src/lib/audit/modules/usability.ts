@@ -11,29 +11,10 @@ export function runUsabilityChecks(
 ): CheckResult[] {
   const $ = cheerio.load(raw.rawHtml);
   const results: CheckResult[] = [];
+  const metrics = psi.mobile.lighthouseResult?.audits || {};
 
   // -----------------------------------------------------------------------
-  // 1. Device Rendering (screenshots available)
-  // -----------------------------------------------------------------------
-  results.push({
-    key: "device_rendering",
-    label: "Device Rendering",
-    category: "usability",
-    status: rendered ? "pass" : "warning",
-    detail: rendered
-      ? "Screenshots captured for desktop, tablet, and mobile viewports"
-      : "Screenshots unavailable (Playwright may not be installed)",
-    data: rendered
-      ? {
-          hasDesktop: !!rendered.screenshots.desktop,
-          hasTablet: !!rendered.screenshots.tablet,
-          hasMobile: !!rendered.screenshots.mobile,
-        }
-      : {},
-  });
-
-  // -----------------------------------------------------------------------
-  // 2. Mobile Viewport Meta Tag
+  // 1. Mobile Viewport Meta Tag
   // -----------------------------------------------------------------------
   const viewport = $('meta[name="viewport"]').attr("content") || "";
   const hasWidthDevice = viewport.toLowerCase().includes("width=device-width");
@@ -51,42 +32,68 @@ export function runUsabilityChecks(
   });
 
   // -----------------------------------------------------------------------
-  // 3. Desktop Performance Score (from PSI)
+  // 2. Device Rendering (screenshots available)
   // -----------------------------------------------------------------------
-  const desktopScore =
-    (psi.desktop.lighthouseResult?.categories?.performance?.score ?? 0) * 100;
   results.push({
-    key: "desktop_performance",
-    label: "Desktop Performance Score",
+    key: "device_rendering",
+    label: "Device Rendering",
     category: "usability",
-    status:
-      desktopScore >= 90 ? "pass" : desktopScore >= 50 ? "warning" : "fail",
-    value: `${Math.round(desktopScore)}/100`,
-    detail: `Desktop PageSpeed score: ${Math.round(desktopScore)}/100`,
-    data: { score: desktopScore },
+    status: rendered ? "pass" : "warning",
+    detail: rendered
+      ? "Screenshots captured for desktop, tablet, and mobile viewports"
+      : "Screenshots unavailable (Playwright may not be installed)",
+    data: rendered
+      ? {
+          hasDesktop: !!rendered.screenshots.desktop,
+          hasTablet: !!rendered.screenshots.tablet,
+          hasMobile: !!rendered.screenshots.mobile,
+          screenshots: {
+             desktop: rendered.screenshots.desktop || null,
+             tablet: rendered.screenshots.tablet || null,
+             mobile: rendered.screenshots.mobile || null,
+          }
+        }
+      : {},
   });
 
   // -----------------------------------------------------------------------
-  // 4. Flash Content
+  // 5. Render-Blocking Resources
   // -----------------------------------------------------------------------
+  const renderBlocking = metrics['render-blocking-resources'];
+  const hasRenderBlocking = renderBlocking && renderBlocking.details?.items?.length > 0;
+  results.push({
+    key: "render_blocking",
+    label: "Render-Blocking Resources",
+    category: "usability",
+    status: hasRenderBlocking ? "warning" : "pass",
+    detail: hasRenderBlocking 
+      ? "Your page has render-blocking resources that may impact load times."
+      : "Your page does not appear to have any significant render-blocking resources.",
+  });
+
+  // 6. Flash Content
   const flashEmbeds = $('embed[src*=".swf"], object[data*=".swf"]').length;
   const flashParams = $('param[value*=".swf"]').length;
   const flashCount = flashEmbeds + flashParams;
   results.push({
     key: "flash_usage",
-    label: "Flash Content",
+    label: "Flash Used?",
     category: "usability",
     status: flashCount === 0 ? "pass" : "fail",
     value: flashCount,
-    detail:
-      flashCount === 0
-        ? "No Flash content detected"
+    detail: flashCount === 0
+        ? "No Flash content has been identified on your page."
         : `${flashCount} Flash element(s) found — Flash is deprecated`,
+    evidence: {
+      metric: "Flash Elements",
+      value: flashCount,
+      unit: "elements",
+      target: { max: 0 },
+      source: "<embed> and <object> tags"
+    }
   });
 
-  // -----------------------------------------------------------------------
-  // 5. iFrames
-  // -----------------------------------------------------------------------
+  // 7. iFrames
   const iframeCount = $("iframe").length;
   const iframeSrcs = $("iframe")
     .map((_, el) => $(el).attr("src") || "unknown")
@@ -94,20 +101,25 @@ export function runUsabilityChecks(
     .slice(0, 5);
   results.push({
     key: "iframes",
-    label: "iFrames Used",
+    label: "iFrames Used?",
     category: "usability",
     status: iframeCount === 0 ? "pass" : iframeCount <= 3 ? "info" : "warning",
     value: iframeCount,
-    detail:
-      iframeCount === 0
+    detail: iframeCount === 0
         ? "No iframes found"
-        : `${iframeCount} iframe(s) found`,
+        : `Your page appears to be using iFrames. iFrames are discouraged as they can complicate navigation of content in mobile.`,
     data: { count: iframeCount, sources: iframeSrcs },
+    evidence: {
+      metric: "iFrames",
+      value: iframeCount,
+      unit: "iframes",
+      target: { max: 3 },
+      found: iframeSrcs,
+      source: "<iframe> tags"
+    }
   });
 
-  // -----------------------------------------------------------------------
-  // 6. Favicon
-  // -----------------------------------------------------------------------
+  // 8. Favicon
   const faviconLink =
     $('link[rel="icon"]').attr("href") ||
     $('link[rel="shortcut icon"]').attr("href") ||
@@ -119,13 +131,17 @@ export function runUsabilityChecks(
     category: "usability",
     status: faviconLink ? "pass" : "fail",
     value: faviconLink || null,
-    detail: faviconLink ? `Found: ${faviconLink}` : "No favicon link found",
+    detail: faviconLink ? "Your page has specified a Favicon." : "No favicon link found",
+    evidence: {
+      metric: "Favicon Link",
+      value: faviconLink ? true : false,
+      target: true,
+      found: faviconLink ? [faviconLink] : undefined,
+      source: "<link rel='icon'>"
+    }
   });
 
-  // -----------------------------------------------------------------------
-  // 7. Email Privacy
-  // -----------------------------------------------------------------------
-  // Strip scripts/styles to only scan visible text
+  // 9. Email Privacy
   const visibleClone = $.root().clone();
   visibleClone.find("script, style, noscript").remove();
   const visibleText = visibleClone.text();
@@ -138,11 +154,18 @@ export function runUsabilityChecks(
     category: "usability",
     status: exposedEmails.length === 0 ? "pass" : "warning",
     value: exposedEmails.length,
-    detail:
-      exposedEmails.length === 0
+    detail: exposedEmails.length === 0
         ? "No plain-text email addresses found"
-        : `${exposedEmails.length} email(s) exposed in plain text (harvesting risk)`,
+        : "Email addresses have been found in plain text. We recommend removing any plain text email addresses and replacing them with contact forms.",
     data: { emails: exposedEmails.slice(0, 5) },
+    evidence: {
+      metric: "Exposed Emails",
+      value: exposedEmails.length,
+      unit: "emails",
+      target: { max: 0 },
+      found: exposedEmails.slice(0, 5),
+      source: "Body Text"
+    }
   });
 
   return results;

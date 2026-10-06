@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
+import { fetchRawHtml } from "@/lib/audit/fetchers/fetchRawHtml";
+import { extractCompanyName } from "@/lib/audit/extractCompanyName";
 
 export async function POST(req: Request) {
   try {
@@ -37,11 +39,21 @@ export async function POST(req: Request) {
 
     const supabase = createServerClient();
 
+    // Try to fetch HTML and extract company name (timeout early so we don't block for long)
+    let companyName = "";
+    try {
+      const htmlResult = await fetchRawHtml(url);
+      companyName = extractCompanyName(htmlResult.rawHtml, url);
+    } catch (e) {
+      console.warn("Failed to fetch initial company name:", e);
+    }
+
     // Create audit row in Supabase
     const insertPayload: Record<string, any> = {
       url,
       slug,
       status: "running",
+      audit_result: companyName ? { companyName } : {},
     };
 
     // Add target_keyword if provided (column may not exist pre-migration)

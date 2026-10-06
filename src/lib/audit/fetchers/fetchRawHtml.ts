@@ -5,29 +5,36 @@ import type { RawHtmlResult } from "../types";
  * after any redirects.
  */
 export async function fetchRawHtml(url: string): Promise<RawHtmlResult> {
-  const res = await fetch(url, {
-    redirect: "follow",
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      Accept:
-        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    },
-    signal: AbortSignal.timeout(30_000),
-  });
+  try {
+    const res = await fetch(url, {
+      redirect: "follow",
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        Accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      },
+      signal: AbortSignal.timeout(60_000), // Increased to 60s
+    });
 
-  const rawHtml = await res.text();
+    const rawHtml = await res.text();
 
-  // Flatten headers into a plain Record
-  const headers: Record<string, string> = {};
-  res.headers.forEach((value, key) => {
-    headers[key.toLowerCase()] = value;
-  });
+    // Flatten headers into a plain Record
+    const headers: Record<string, string> = {};
+    res.headers.forEach((value, key) => {
+      headers[key.toLowerCase()] = value;
+    });
 
-  return {
-    statusCode: res.status,
-    headers,
-    rawHtml,
-    responseUrl: res.url,
-  };
+    return {
+      statusCode: res.status,
+      headers,
+      rawHtml,
+      responseUrl: res.url,
+    };
+  } catch (err: any) {
+    if (err.name === 'TimeoutError' || err.message?.includes('timeout')) {
+      throw new Error(`Failed to load ${url} (Timeout after 60s). The website might be blocking our crawler or responding too slowly.`);
+    }
+    throw new Error(`Failed to load ${url}: ${err.message}`);
+  }
 }

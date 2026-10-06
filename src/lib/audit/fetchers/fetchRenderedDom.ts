@@ -12,55 +12,65 @@ export async function fetchRenderedDom(
   const { chromium } = await import("playwright");
 
   const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext({
-    userAgent:
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    ignoreHTTPSErrors: true,
-  });
 
   try {
-    const page = await context.newPage();
+    // 1. Create contexts in parallel with device-specific settings
+    const [desktopCtx, tabletCtx, mobileCtx] = await Promise.all([
+      browser.newContext({
+        viewport: { width: 1280, height: 800 },
+        userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        ignoreHTTPSErrors: true,
+      }),
+      browser.newContext({
+        viewport: { width: 768, height: 1024 },
+        userAgent: "Mozilla/5.0 (iPad; CPU OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1",
+        isMobile: true,
+        hasTouch: true,
+        ignoreHTTPSErrors: true,
+      }),
+      browser.newContext({
+        viewport: { width: 375, height: 812 },
+        userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1",
+        isMobile: true,
+        hasTouch: true,
+        ignoreHTTPSErrors: true,
+      }),
+    ]);
 
-    // Desktop viewport (capture rendered HTML from the desktop view)
-    await page.setViewportSize({ width: 1920, height: 1080 });
-    await page.goto(url, { waitUntil: "networkidle", timeout: 30_000 });
+    // 2. Open pages
+    const desktopPage = await desktopCtx.newPage();
+    const tabletPage = await tabletCtx.newPage();
+    const mobilePage = await mobileCtx.newPage();
 
-    // Wait a bit more for lazy-loaded content
-    await page.waitForTimeout(2000);
+    // 3. Navigate in parallel
+    await Promise.allSettled([
+      desktopPage.goto(url, { waitUntil: "networkidle", timeout: 30_000 }),
+      tabletPage.goto(url, { waitUntil: "networkidle", timeout: 30_000 }),
+      mobilePage.goto(url, { waitUntil: "networkidle", timeout: 30_000 })
+    ]);
 
-    const renderedHtml = await page.content();
+    // Wait a bit more for animations/lazy-loaded content
+    await new Promise(r => setTimeout(r, 2000));
 
-    // Desktop screenshot
-    const desktopBuffer = await page.screenshot({
-      fullPage: false,
-      type: "png",
-    });
-    const desktop = `data:image/png;base64,${desktopBuffer.toString("base64")}`;
+    // 4. Capture rendered HTML (from desktop)
+    const renderedHtml = await desktopPage.content();
 
-    // Tablet screenshot (768 × 1024)
-    await page.setViewportSize({ width: 768, height: 1024 });
-    await page.waitForTimeout(500);
-    const tabletBuffer = await page.screenshot({
-      fullPage: false,
-      type: "png",
-    });
-    const tablet = `data:image/png;base64,${tabletBuffer.toString("base64")}`;
+    // 5. Take screenshots in parallel
+    const [desktopBuffer, tabletBuffer, mobileBuffer] = await Promise.all([
+      desktopPage.screenshot({ fullPage: false, type: "jpeg", quality: 80 }),
+      tabletPage.screenshot({ fullPage: false, type: "jpeg", quality: 80 }),
+      mobilePage.screenshot({ fullPage: false, type: "jpeg", quality: 80 })
+    ]);
 
-    // Mobile screenshot (375 × 812)
-    await page.setViewportSize({ width: 375, height: 812 });
-    await page.waitForTimeout(500);
-    const mobileBuffer = await page.screenshot({
-      fullPage: false,
-      type: "png",
-    });
-    const mobile = `data:image/png;base64,${mobileBuffer.toString("base64")}`;
+    const desktop = `data:image/jpeg;base64,${desktopBuffer.toString("base64")}`;
+    const tablet = `data:image/jpeg;base64,${tabletBuffer.toString("base64")}`;
+    const mobile = `data:image/jpeg;base64,${mobileBuffer.toString("base64")}`;
 
     return {
       renderedHtml,
       screenshots: { desktop, tablet, mobile },
     };
   } finally {
-    await context.close();
     await browser.close();
   }
 }

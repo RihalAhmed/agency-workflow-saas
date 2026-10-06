@@ -1,30 +1,79 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Search,
-  Loader2,
-  FileText,
-  ChevronDown,
+  Loader2
 } from "lucide-react";
+import { 
+  IconCameraStar, 
+  IconClipboardCheck, 
+  IconCalendar, 
+  IconChevronBlack, 
+  IconChevronWhite, 
+  IconSopStar, 
+  IconWindowBrowser 
+} from "@/components/icons/AuditIcons";
+import { AuditHeader } from "@/components/audit/AuditHeader";
 
-/**
- * Audit Dashboard — SEO Audit segment entry page.
- *
- * Per spec "Frontend Structure Guide":
- * - Top bar: segment tabs (Traffic | SEO Audit | Trust | Conversion) + "My SOP/Blueprint" button
- * - Input row: "Existing Lead" dropdown + "Website URL" text field
- */
+const SEGMENT_TABS = ["SEO Audit", "Trust", "Conversion"] as const;
 
-const SEGMENT_TABS = ["Traffic", "SEO Audit", "Trust", "Conversion"] as const;
+const TYPING_PLACEHOLDERS = [
+  "bestofroofing.com.uk",
+  "plumbersexpert.com",
+  "ourpestcontrol.com",
+  "remodelhousedealers.com"
+];
+
+function TypingInput({ value, onChange }: { value: string, onChange: (val: string) => void }) {
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [currentText, setCurrentText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const typeSpeed = 70;
+    const deleteSpeed = 40;
+    const delayBeforeDelete = 1500;
+
+    const text = TYPING_PLACEHOLDERS[placeholderIndex];
+    let timer: NodeJS.Timeout;
+
+    if (!isDeleting && currentText === text) {
+      timer = setTimeout(() => setIsDeleting(true), delayBeforeDelete);
+    } else if (isDeleting && currentText === "") {
+      setIsDeleting(false);
+      setPlaceholderIndex((prev) => (prev + 1) % TYPING_PLACEHOLDERS.length);
+    } else {
+      timer = setTimeout(() => {
+        setCurrentText(
+          isDeleting
+            ? text.substring(0, currentText.length - 1)
+            : text.substring(0, currentText.length + 1)
+        );
+      }, isDeleting ? deleteSpeed : typeSpeed);
+    }
+
+    return () => clearTimeout(timer);
+  }, [currentText, isDeleting, placeholderIndex]);
+
+  return (
+    <input
+      type="text"
+      placeholder={currentText || "|"}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      required
+      className="w-full h-full bg-transparent outline-none text-[#e5e5e5]/70 text-[16px] font-normal placeholder:text-[#e5e5e5]/70"
+    />
+  );
+}
+
 
 export default function AuditDashboard() {
   const [url, setUrl] = useState("");
-  const [targetKeyword, setTargetKeyword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>("SEO Audit");
-  const [leadType, setLeadType] = useState("New Lead");
+  const [activeTab] = useState<string>("SEO Audit");
 
   const router = useRouter();
 
@@ -39,7 +88,6 @@ export default function AuditDashboard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           url,
-          targetKeyword: targetKeyword || undefined,
         }),
       });
       const data = await res.json();
@@ -58,114 +106,45 @@ export default function AuditDashboard() {
   };
 
   return (
-    <>
-      {/* ——— Top Bar ——— */}
-      <header className="flex items-center justify-between border-b border-white/[0.06] bg-[#0c1022]/80 backdrop-blur-sm px-6 h-14 shrink-0">
-        {/* Segment Tabs — left aligned */}
-        <div className="flex items-center gap-1">
-          {SEGMENT_TABS.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 text-[13px] font-medium rounded-md transition-all ${
-                activeTab === tab
-                  ? "bg-blue-500/10 text-blue-400 border border-blue-500/15"
-                  : "text-slate-500 hover:text-slate-300 hover:bg-white/[0.03] border border-transparent"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+    <div className="flex-1 flex flex-col h-full bg-gradient-to-br from-[#000000] via-[#533afd] to-[#000000] rounded-[25px] overflow-hidden">
+      <AuditHeader activeTab={activeTab} />
 
-        {/* My SOP/Blueprint — right aligned */}
-        <button className="flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-slate-400 hover:text-slate-200 rounded-lg border border-white/[0.08] hover:border-white/[0.12] bg-white/[0.02] hover:bg-white/[0.04] transition-all">
-          <FileText size={15} />
-          My SOP/Blueprint
-        </button>
-      </header>
+      <main className="flex-1 flex flex-col bg-white rounded-[30px] mx-1 mb-1 relative overflow-hidden">
+        <div className="flex-1 overflow-y-auto">
+          <div className="w-full h-full min-h-full flex flex-col items-center justify-center -mt-32">
+          
+          <h2 className="text-[24px] font-bold text-black mb-4 -mt-[60px]">
+            Run a Website Audit
+          </h2>
+          
+          <p className="text-[16px] text-black max-w-[712px] text-center mb-8">
+            Enter a prospect's website to get an instant grade across SEO, usability, GEO, and performance, with prioritized fixes you can act on right away.
+          </p>
 
-      {/* ——— Main Panel ——— */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-6xl mx-auto px-6 py-8">
-          {/* Input Row */}
-          <form onSubmit={handleRunAudit} className="mb-10">
-            <div className="flex flex-col sm:flex-row gap-3">
-              {/* Existing Lead Dropdown */}
-              <div className="relative sm:w-52 shrink-0">
-                <select
-                  value={leadType}
-                  onChange={(e) => setLeadType(e.target.value)}
-                  className="w-full appearance-none bg-[#111630] border border-white/[0.08] rounded-xl pl-4 pr-10 py-3.5 text-[13px] text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/30 transition-all cursor-pointer"
-                >
-                  <option>New Lead</option>
-                  <option>Existing Lead</option>
-                  <option>Referral</option>
-                  <option>Cold Outreach</option>
-                </select>
-                <ChevronDown
-                  size={14}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"
-                />
+          <form onSubmit={handleRunAudit} className="flex flex-col items-center w-full">
+              <div className="w-full max-w-[680px] h-[52px] bg-[#221e34] rounded-[99px] flex items-center justify-between p-1.5 shadow-lg relative z-10">
+              <div className="flex items-center flex-1 h-full pl-5">
+                <IconWindowBrowser className="mr-3 shrink-0" />
+                <TypingInput value={url} onChange={setUrl} />
               </div>
-
-              {/* Website URL */}
-              <div className="relative flex-1">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">
-                  <Search size={18} />
-                </div>
-                <input
-                  type="text"
-                  placeholder="https://prospect-website.com"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  required
-                  className="w-full bg-[#111630] border border-white/[0.08] rounded-xl py-3.5 pl-12 pr-36 text-[14px] text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/30 transition-all"
-                />
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="absolute right-1.5 top-1.5 bottom-1.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-medium text-[13px] rounded-lg px-6 flex items-center gap-2 transition-all disabled:opacity-50 shadow-lg shadow-blue-500/20"
-                >
-                  {loading ? (
-                    <Loader2 className="animate-spin" size={16} />
-                  ) : (
-                    "Run Audit"
-                  )}
-                </button>
-              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="h-full bg-white hover:bg-gray-100 text-black font-semibold text-[13px] rounded-[99px] px-6 flex items-center justify-center transition-all disabled:opacity-50 shrink-0 cursor-pointer disabled:cursor-not-allowed"
+              >
+                {loading ? <Loader2 className="animate-spin mr-2" size={14} /> : null}
+                Start the audit
+              </button>
             </div>
-
-            {/* Optional keyword input */}
-            <div className="mt-3 flex items-center gap-3">
-              <label className="text-[12px] text-slate-500 shrink-0">
-                Target keyword (optional):
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. pest control melbourne"
-                value={targetKeyword}
-                onChange={(e) => setTargetKeyword(e.target.value)}
-                className="flex-1 max-w-sm bg-[#111630] border border-white/[0.06] rounded-lg py-2 px-3 text-[12px] text-slate-300 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-all"
-              />
-            </div>
-          </form>
-
-          {/* Empty state when no audit results to show */}
-          <div className="bg-[#111630]/50 border border-white/[0.06] border-dashed rounded-2xl p-16 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-[#111630] border border-white/[0.06] flex items-center justify-center mx-auto mb-5">
-              <Search className="text-slate-600" size={28} />
-            </div>
-            <h3 className="text-lg font-medium text-slate-300 mb-2">
-              Run your first SEO audit
-            </h3>
-            <p className="text-slate-500 text-sm max-w-md mx-auto">
-              Enter a prospect&apos;s website URL above to generate a comprehensive
-              7-module SEO analysis with actionable recommendations.
+            
+            <p className="text-[12px] text-[#8d8d8d] mt-4 text-center w-full">
+              We only read what's visible to any visitor.
             </p>
-          </div>
+          </form>
+          
+        </div>
         </div>
       </main>
-    </>
+    </div>
   );
 }

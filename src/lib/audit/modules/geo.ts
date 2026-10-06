@@ -28,7 +28,7 @@ export async function runGeoChecks(
   if (renderedText !== null && rawText.length > 0) {
     const ratio = renderedText.length / rawText.length;
     const pct = Math.round(ratio * 100);
-    const isClientHeavy = ratio > 2; // rendered >> raw means heavy client-side rendering
+    const isClientHeavy = ratio > 2;
 
     results.push({
       key: "rendered_content_ratio",
@@ -40,6 +40,13 @@ export async function runGeoChecks(
         ? `${pct}% — heavy client-side rendering may hurt AI crawler readability`
         : `${pct}% — good server-side content coverage`,
       data: { rawLength: rawText.length, renderedLength: renderedText.length, ratio },
+      evidence: {
+        metric: "Rendered vs Raw text ratio",
+        value: pct,
+        unit: "%",
+        target: { max: 200 },
+        source: "Playwright DOM vs Raw HTML"
+      }
     });
   } else {
     results.push({
@@ -48,27 +55,32 @@ export async function runGeoChecks(
       category: "geo",
       status: "info",
       detail: "Could not compare raw vs rendered DOM (Playwright unavailable)",
+      evidence: {
+        metric: "Rendered vs Raw text ratio",
+        source: "Playwright DOM vs Raw HTML"
+      }
     });
   }
 
-  // -----------------------------------------------------------------------
   // 2. llms.txt
-  // -----------------------------------------------------------------------
   results.push({
     key: "llms_txt",
     label: "llms.txt",
     category: "geo",
     status: aux.llmsTxt.status === 200 ? "pass" : "fail",
     value: aux.llmsTxt.status === 200,
-    detail:
-      aux.llmsTxt.status === 200
+    detail: aux.llmsTxt.status === 200
         ? "Found and accessible — declares LLM crawling preferences"
         : "Not found — consider adding /llms.txt for AI crawler guidance",
+    evidence: {
+      metric: "llms.txt status code",
+      value: aux.llmsTxt.status,
+      target: 200,
+      source: "HTTP Request"
+    }
   });
 
-  // -----------------------------------------------------------------------
   // 3. AI Crawlers Blocked by Robots.txt
-  // -----------------------------------------------------------------------
   const aiCrawlers = [
     "gptbot",
     "google-extended",
@@ -93,7 +105,6 @@ export async function runGeoChecks(
         stripped === "disallow: /"
       ) {
         if (currentAgent === "*") {
-          // Blocking everything blocks AI crawlers too
           blockedCrawlers.push("* (all)");
           break;
         }
@@ -112,19 +123,25 @@ export async function runGeoChecks(
       blockedCrawlers.length === 0
         ? "pass"
         : blockedCrawlers.length <= 2
-          ? "info"
-          : "warning",
+          ? "warning"
+          : "fail",
     value: blockedCrawlers.length,
     detail:
       blockedCrawlers.length === 0
         ? "No AI crawlers explicitly blocked"
         : `Blocked: ${blockedCrawlers.join(", ")}`,
     data: { blocked: blockedCrawlers },
+    evidence: {
+      metric: "AI Crawlers Blocked",
+      value: blockedCrawlers.length,
+      unit: "crawlers",
+      target: { max: 0 },
+      found: blockedCrawlers.length > 0 ? blockedCrawlers : undefined,
+      source: "robots.txt"
+    }
   });
 
-  // -----------------------------------------------------------------------
   // 4. Identity Schema (Organization / Person)
-  // -----------------------------------------------------------------------
   let identityType: string | null = null;
   let identityName: string | null = null;
   $('script[type="application/ld+json"]').each((_, el) => {
@@ -152,20 +169,23 @@ export async function runGeoChecks(
       ? `Found: ${identityType}${identityName ? ` — "${identityName}"` : ""}`
       : "No Organization or Person schema found — limits entity recognition by AI",
     data: { type: identityType, name: identityName },
+    evidence: {
+      metric: "Identity Schema Type",
+      value: identityType || "none",
+      target: "Organization or Person",
+      found: identityType ? [identityType + (identityName ? ` (${identityName})` : "")] : undefined,
+      missing: !identityType ? ["Organization", "Person"] : undefined,
+      source: "application/ld+json"
+    }
   });
 
-  // -----------------------------------------------------------------------
   // 5. LLM Content Analysis (Gemini API)
-  // Sends page content to Gemini for AI-search-readiness assessment
-  // -----------------------------------------------------------------------
   try {
     const { GoogleGenAI } = await import("@google/genai");
     const geminiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
 
     if (geminiKey) {
       const ai = new GoogleGenAI({ apiKey: geminiKey });
-
-      // Prepare condensed content (limit to ~8000 chars to stay within context)
       const pageContent = rawText.substring(0, 8000);
 
       const prompt = `You are an AI search readiness auditor. Analyze this webpage content and rate it on these dimensions for AI search engines (like Google AI Overviews, ChatGPT, Perplexity):
@@ -196,8 +216,6 @@ Respond ONLY with valid JSON (no markdown fences):
         contents: prompt,
       });
       const text = response.text?.trim() || "";
-
-      // Parse the JSON response
       const cleaned = text.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
       const analysis = JSON.parse(cleaned);
 
@@ -214,14 +232,26 @@ Respond ONLY with valid JSON (no markdown fences):
         value: `${analysis.overallScore}/100`,
         detail: analysis.summary || `AI readiness score: ${analysis.overallScore}/100`,
         data: analysis,
+        evidence: {
+          metric: "AI Readiness Score",
+          value: analysis.overallScore,
+          unit: "/ 100",
+          target: { min: 70 },
+          score: analysis.overallScore,
+          source: "Gemini 2.0 Flash Analysis"
+        }
       });
     } else {
       results.push({
         key: "llm_content_analysis",
         label: "AI Search Readiness",
         category: "geo",
-        status: "info",
+        status: "skipped",
         detail: "Skipped — no Gemini API key configured",
+        evidence: {
+          metric: "AI Readiness Score",
+          source: "Gemini 2.0 Flash API"
+        }
       });
     }
   } catch (err: any) {
@@ -229,7 +259,7 @@ Respond ONLY with valid JSON (no markdown fences):
       key: "llm_content_analysis",
       label: "AI Search Readiness",
       category: "geo",
-      status: "info",
+      status: "skipped",
       detail: `AI analysis unavailable: ${err.message?.substring(0, 80) || "unknown error"}`,
     });
   }

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
+import Link from "next/link";
 import {
   Loader2,
   AlertCircle,
@@ -12,14 +13,41 @@ import {
   Pause,
   Video,
   ChevronRight,
+  ChevronDown,
   CheckCircle,
   XCircle,
   AlertTriangle,
   Info,
   ArrowUp,
+  Search,
+  Settings,
+  Users,
+  ArrowLeft,
+  Home,
+  Link2,
+  ShieldCheck,
+  TrendingUp
 } from "lucide-react";
+import { 
+  IconCameraStar, 
+  IconClipboardCheck, 
+  IconCalendar, 
+  IconChevronBlack, 
+  IconChevronWhite, 
+  IconSopStar
+} from "@/components/icons/AuditIcons";
 import { OnPageSeoResults } from "@/components/audit/OnPageSeoResults";
+import { GeoResults } from "@/components/audit/GeoResults";
+import { UsabilityResults } from "@/components/audit/UsabilityResults";
+import { LocalSeoResults } from "@/components/audit/LocalSeoResults";
+import { PageSpeedResults } from "@/components/audit/PageSpeedResults";
+import { PerformanceResults } from "@/components/audit/PerformanceResults";
+import { TechnologyResults } from "@/components/audit/TechnologyResults";
+import { SocialResults } from "@/components/audit/SocialResults";
 import { RecommendationsList } from "@/components/audit/RecommendationsList";
+import { AuditHeader } from "@/components/audit/AuditHeader";
+import { AuditBlueprint } from "@/components/audit/loading/AuditBlueprint";
+import { RECOMMENDATION_TITLES, RECOMMENDATION_DESCRIPTIONS } from "@/lib/audit/recommendations";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -36,6 +64,7 @@ interface Recommendation {
   title: string;
   category: string;
   priority: "High" | "Medium" | "Low";
+  checkKey?: string;
 }
 
 interface CheckItem {
@@ -52,7 +81,7 @@ interface CheckItem {
 // Constants
 // ---------------------------------------------------------------------------
 
-const SEGMENT_TABS = ["Traffic", "SEO Audit", "Trust", "Conversion"] as const;
+const SEGMENT_TABS = ["SEO Audit", "Trust", "Conversion"] as const;
 
 const CATEGORY_META: Record<
   string,
@@ -110,6 +139,55 @@ const GRADE_COLORS: Record<string, string> = {
   "D-": "#dc2626",
   F: "#b91c1c",
 };
+
+const getGradeMessage = (grade: string) => {
+  if (grade.startsWith("A")) return "Excellent work!";
+  if (grade.startsWith("B")) return "Good, but could be improved";
+  if (grade.startsWith("C")) return "Your page could be better";
+  if (grade.startsWith("D")) return "Needs significant improvement";
+  return "Critical issues detected";
+};
+
+function ProgressRing({ size, strokeWidth, percentage, color, grade, label }: { size: number, strokeWidth: number, percentage: number, color: string, grade: string, label?: string }) {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const offset = circumference - (percentage / 100) * circumference;
+  
+  return (
+    <div className="relative flex items-center justify-center shrink-0" style={{ width: size, height: size }}>
+      {/* Background track */}
+      <svg className="absolute top-0 left-0" width={size} height={size}>
+        <circle
+          stroke="#F1F5F9"
+          fill="transparent"
+          strokeWidth={strokeWidth}
+          r={radius}
+          cx={size / 2}
+          cy={size / 2}
+        />
+      </svg>
+      {/* Progress stroke */}
+      <svg className="absolute top-0 left-0 transform -rotate-90" width={size} height={size}>
+        <circle
+          stroke={color}
+          fill="transparent"
+          strokeWidth={strokeWidth}
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          r={radius}
+          cx={size / 2}
+          cy={size / 2}
+          style={{ transition: 'stroke-dashoffset 1s ease-in-out' }}
+        />
+      </svg>
+      {/* Grade text inside */}
+      <span className="font-bold text-[#111630]" style={{ fontSize: size * 0.35 }}>
+        {grade}
+      </span>
+    </div>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Score Circle Component
@@ -319,16 +397,32 @@ export default function AuditResults({
   // Derived data
   // -----------------------------------------------------------------------
 
+  const parsedAuditResult = useMemo(() => {
+    if (typeof audit?.audit_result === 'string') {
+      try {
+        return JSON.parse(audit.audit_result);
+      } catch (e) {
+        return null;
+      }
+    }
+    return audit?.audit_result || null;
+  }, [audit]);
+
   const categoryScoresData = useMemo((): CategoryScore[] => {
     // Prefer the pre-computed category_scores from the DB
     const cs = audit?.category_scores;
+    const catNum = parsedAuditResult?.categoryNumeric;
+    
     if (cs) {
-      return Object.entries(cs).map(([key, grade]) => ({
-        key,
-        label: CATEGORY_META[key]?.label || key,
-        grade: grade as string,
-        numericScore: gradeToPercent(grade as string),
-      }));
+      return Object.entries(cs).map(([key, grade]) => {
+        const percentage = catNum?.[key] !== undefined ? catNum[key] : gradeToPercent(grade as string);
+        return {
+          key,
+          label: CATEGORY_META[key]?.label || key,
+          grade: grade as string,
+          numericScore: percentage,
+        };
+      });
     }
 
     // Fallback: compute from individual scores
@@ -351,11 +445,36 @@ export default function AuditResults({
         numericScore: pct,
       };
     });
-  }, [audit, scores]);
+  }, [audit, scores, parsedAuditResult]);
 
-  const recommendations = useMemo((): Recommendation[] => {
-    return audit?.audit_result?.recommendations || [];
-  }, [audit]);
+  const recommendations = useMemo(() => {
+    const recs: any[] = parsedAuditResult?.recommendations || [];
+    return recs.map(rec => {
+      let key = rec.checkKey;
+      if (!key) {
+        key = Object.entries(RECOMMENDATION_TITLES).find(
+          ([_, title]) => title === rec.title
+        )?.[0];
+      }
+      
+      const actionableDescription = RECOMMENDATION_DESCRIPTIONS[key || ''];
+      const scoreItem = scores.find(s => s.check_key === key || s.key === key);
+      
+      return { 
+        ...rec, 
+        checkKey: key,
+        description: actionableDescription || scoreItem?.detail || rec.description 
+      };
+    });
+  }, [parsedAuditResult, scores]);
+
+  useEffect(() => {
+    const handleOpenCategory = (e: any) => {
+      if (e.detail?.category) setActiveCategory(e.detail.category);
+    };
+    window.addEventListener('open-category', handleOpenCategory);
+    return () => window.removeEventListener('open-category', handleOpenCategory);
+  }, []);
 
   const filteredScores = useMemo(() => {
     if (!activeCategory) return scores;
@@ -364,47 +483,30 @@ export default function AuditResults({
 
   // Screenshot from the audit result
   const screenshot = useMemo(() => {
-    const result = audit?.audit_result;
-    if (!result?.screenshots) {
-      // Fallback to PSI screenshot
-      const psiScreenshot =
-        audit?.pagespeed_raw?.lighthouseResult?.audits?.["final-screenshot"]
-          ?.details?.data;
-      return psiScreenshot || null;
+    // 1. Try to use the ultra-fast embedded Base64 screenshot from Playwright
+    const embeddedScreenshot = parsedAuditResult?.screenshots?.[viewport] || parsedAuditResult?.screenshots?.desktop;
+    if (embeddedScreenshot) {
+      return embeddedScreenshot;
     }
-    return result.screenshots[viewport] || result.screenshots.desktop || null;
-  }, [audit, viewport]);
+    
+    // 2. Fallback to API proxy (which is slightly slower) for older audits
+    if (!audit?.url) return null;
+    return `/api/screenshot?url=${encodeURIComponent(audit.url)}`;
+  }, [parsedAuditResult, audit, viewport]);
 
   // -----------------------------------------------------------------------
   // Loading state
   // -----------------------------------------------------------------------
   if (loading) {
+    const displayDomain = audit?.url 
+      ? new URL(audit.url).hostname 
+      : (slug || "").replace(/-[0-9]+$/, '').replace(/-/g, '.'); // Attempt to clean slug
+
     return (
-      <>
-        <TopBar activeTab={activeTab} />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="relative w-20 h-20 mx-auto mb-6">
-              <div className="absolute inset-0 rounded-full border-2 border-blue-500/20" />
-              <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-blue-500 animate-spin" />
-              <Loader2
-                className="absolute inset-0 m-auto text-blue-400 animate-pulse"
-                size={28}
-              />
-            </div>
-            <h2 className="text-xl font-semibold text-white mb-2">
-              Running Full Audit
-            </h2>
-            <p className="text-slate-400 text-sm mb-1">
-              {processingStatus || "Initializing..."}
-            </p>
-            <p className="text-[12px] text-slate-600 max-w-sm mx-auto mt-3">
-              Analyzing On-Page SEO, Performance, Usability, Social, Local SEO,
-              Technology, and GEO modules. This takes 30–60 seconds.
-            </p>
-          </div>
-        </div>
-      </>
+      <div className="flex-1 flex flex-col h-full bg-gradient-to-br from-[#000000] via-[#533afd] to-[#000000] rounded-[25px] overflow-hidden">
+        <AuditHeader activeTab={activeTab} companyName={audit?.company_name || audit?.audit_result?.companyName} url={audit?.url} />
+        <AuditBlueprint domain={displayDomain} />
+      </div>
     );
   }
 
@@ -413,20 +515,22 @@ export default function AuditResults({
   // -----------------------------------------------------------------------
   if (error || audit?.status === "error") {
     return (
-      <>
-        <TopBar activeTab={activeTab} />
-        <div className="flex-1 flex items-center justify-center p-8">
-          <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-8 max-w-lg text-center">
-            <AlertCircle className="mx-auto mb-4 text-red-400" size={36} />
-            <h2 className="text-xl font-semibold text-white mb-2">
-              Audit Failed
-            </h2>
-            <p className="text-red-300/80 text-sm">
-              {error || "An error occurred while processing this website."}
-            </p>
+      <div className="flex-1 flex flex-col h-full bg-gradient-to-br from-[#000000] via-[#533afd] to-[#000000] rounded-[25px] overflow-hidden">
+        <AuditHeader activeTab={activeTab} companyName={audit?.company_name || audit?.audit_result?.companyName} url={audit?.url} />
+        <div className="flex-1 flex flex-col bg-white rounded-[30px] mx-1 mb-1 relative overflow-hidden">
+          <div className="flex-1 overflow-y-auto flex items-center justify-center p-8">
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-8 max-w-lg text-center">
+              <AlertCircle className="mx-auto mb-4 text-red-500" size={36} />
+              <h2 className="text-xl font-semibold text-red-700 mb-2">
+                Audit Failed
+              </h2>
+              <p className="text-red-600 text-sm">
+                {error || "An error occurred while processing this website."}
+              </p>
+            </div>
           </div>
         </div>
-      </>
+      </div>
     );
   }
 
@@ -437,311 +541,186 @@ export default function AuditResults({
   const overallColor = GRADE_COLORS[overallGrade] || "#94a3b8";
 
   return (
-    <>
-      <TopBar activeTab={activeTab} />
+    <div className="flex-1 flex flex-col h-full bg-gradient-to-br from-[#000000] via-[#533afd] to-[#000000] rounded-[25px] overflow-hidden">
+      <AuditHeader activeTab={activeTab} companyName={audit?.company_name || audit?.audit_result?.companyName} url={audit?.url} />
 
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-[1400px] mx-auto px-6 py-6 space-y-6">
-          {/* ——— Header with URL + overall grade ——— */}
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[12px] text-slate-500 uppercase tracking-widest font-semibold mb-1">
-                SEO Audit Results
-              </p>
-              <h1 className="text-xl font-semibold text-white truncate max-w-xl">
-                {audit.url}
-              </h1>
-            </div>
-            <div className="flex items-center gap-3 bg-[#111630] border border-white/[0.06] rounded-2xl px-5 py-3">
-              <div className="text-right">
-                <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">
-                  Overall
-                </p>
-                <p
-                  className="text-3xl font-bold"
-                  style={{ color: overallColor }}
-                >
-                  {overallGrade}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* ——— Website Preview Panel ——— */}
-          <div className="bg-[#111630] border border-white/[0.06] rounded-2xl overflow-hidden">
-            {/* Viewport toggle bar */}
-            <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-2.5">
-              <span className="text-[12px] text-slate-500 font-medium">
-                Website Preview
-              </span>
-              <div className="flex items-center gap-1 bg-[#0a0e1a] rounded-lg p-0.5">
-                {(
-                  [
-                    { key: "desktop", icon: Monitor, label: "Desktop" },
-                    { key: "tablet", icon: Tablet, label: "Tablet" },
-                    { key: "mobile", icon: Smartphone, label: "Mobile" },
-                  ] as const
-                ).map(({ key, icon: Icon, label }) => (
-                  <button
-                    key={key}
-                    onClick={() => setViewport(key)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium rounded-md transition-all ${
-                      viewport === key
-                        ? "bg-blue-500/10 text-blue-400"
-                        : "text-slate-500 hover:text-slate-300"
-                    }`}
-                  >
-                    <Icon size={13} />
-                    {label}
-                  </button>
-                ))}
-              </div>
+      <main className="flex-1 flex flex-col bg-white rounded-[30px] mx-1 mb-1 relative overflow-hidden">
+        <div className="flex-1 overflow-y-auto w-full">
+          <div className="max-w-[1549px] mx-auto px-10 py-10 space-y-12">
+          {/* ——— Header Section (Image and Summary) ——— */}
+          <div className="relative w-full rounded-[24px] bg-[#F7F9FF] overflow-hidden flex flex-col xl:flex-row items-center justify-between p-8 xl:p-10 gap-8 shadow-sm group/header">
+            {/* Abstract background styling */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-gradient-to-l from-[#E8EEFF] to-transparent" />
+              <div className="absolute -right-[5%] -top-[20%] w-[40%] h-[150%] bg-gradient-to-b from-[#D4C6FF]/30 via-[#A4B5FF]/20 to-transparent rotate-12 blur-3xl rounded-full" />
+              <div className="absolute -right-[2%] top-[10%] w-[35%] h-[120%] bg-gradient-to-tr from-[#A6C0FF]/30 to-[#C8B6FF]/30 -rotate-12 blur-[100px] rounded-full" />
             </div>
 
-            {/* Screenshot area */}
-            <div
-              className="relative flex items-center justify-center bg-[#0a0e1a] overflow-hidden"
-              style={{
-                height:
-                  viewport === "mobile"
-                    ? 500
-                    : viewport === "tablet"
-                      ? 420
-                      : 360,
-              }}
-            >
-              {screenshot ? (
-                <img
-                  src={screenshot}
-                  alt={`${viewport} preview of ${audit.url}`}
-                  className={`object-contain object-top h-full transition-all duration-300 ${
-                    viewport === "mobile"
-                      ? "max-w-[280px] rounded-2xl border border-white/[0.06] shadow-2xl"
-                      : viewport === "tablet"
-                        ? "max-w-[520px] rounded-xl border border-white/[0.06] shadow-xl"
-                        : "w-full"
-                  }`}
-                />
-              ) : (
-                <div className="text-slate-600 text-sm flex flex-col items-center gap-2">
-                  <Monitor size={32} className="text-slate-700" />
-                  <span>Preview unavailable</span>
+            {/* Left: Text Content */}
+            <div className="flex flex-col max-w-[340px] relative z-10 shrink-0">
+              <div className="flex items-center gap-3 mb-4">
+                <Link href="/audit" className="flex items-center justify-center px-3.5 h-[30px] bg-white/40 border border-white/60 rounded-full text-[12px] font-semibold text-gray-500 hover:bg-white hover:text-black transition-all shadow-sm backdrop-blur-sm">
+                  <ArrowLeft size={14} className="mr-1.5" />
+                  Back
+                </Link>
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/70 border border-[#E2E8F0] rounded-full w-fit shadow-sm backdrop-blur-sm">
+                  <IconSopStar className="w-3.5 h-3.5 text-blue-600" />
+                  <span className="text-[12px] font-semibold text-[#475569]">SEO Audit</span>
                 </div>
-              )}
+              </div>
+              <h1 className="text-[40px] font-bold text-[#111630] mb-3 leading-tight tracking-tight">
+                Audit Results
+              </h1>
+              <p className="text-[14px] text-[#64748B] leading-relaxed font-medium">
+                Here's how your website performs and where you can improve. We've analyzed key SEO factors to give you a clear picture of your site's health and opportunities.
+              </p>
             </div>
-          </div>
 
-          {/* ——— Hero Summary (Phase 1 Redesign) ——— */}
-          <div className="bg-[#111630] border border-white/[0.06] rounded-2xl p-4">
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-              {/* Overall circle */}
+            {/* Middle: Circles */}
+            <div className="flex items-center gap-8 relative z-10 flex-1 justify-center">
+              {/* Overall Grade */}
               <button
                 onClick={() => setActiveCategory(null)}
-                className={`flex flex-col items-center gap-2 px-3 py-2 rounded-xl transition-all shrink-0 ${
-                  !activeCategory
-                    ? "bg-white/[0.06] border border-white/[0.1]"
-                    : "hover:bg-white/[0.03] border border-transparent"
-                }`}
+                className={`flex flex-col items-center pt-2 pb-2 px-4 rounded-xl cursor-pointer transition-all group ${activeCategory === null ? 'bg-white shadow-sm ring-1 ring-slate-200' : 'hover:bg-white hover:shadow-sm'}`}
               >
-                <div
-                  className="w-[90px] h-[90px] rounded-full flex items-center justify-center"
-                  style={{
-                    background: `conic-gradient(${overallColor} ${gradeToPercent(overallGrade)}%, rgba(255,255,255,0.06) 0)`,
-                  }}
-                >
-                  <div className="w-[74px] h-[74px] rounded-full bg-[#111630] flex items-center justify-center">
-                    <span
-                      className="font-bold text-lg"
-                      style={{ color: overallColor }}
-                    >
-                      {overallGrade}
-                    </span>
-                  </div>
+                <div className="group-hover:scale-105 transition-transform shrink-0">
+                  <ProgressRing 
+                    size={130} 
+                    strokeWidth={12} 
+                    percentage={audit?.overall_score || 0} 
+                    color={overallColor} 
+                    grade={overallGrade} 
+                  />
                 </div>
-                <span className="text-[11px] text-slate-400 font-medium">
-                  Overall
-                </span>
+                <div className="mt-4 text-center">
+                  <div className="text-[14px] font-bold text-[#111630]">Overall Grade</div>
+                  <div className="text-[11px] text-[#64748B] mt-1 font-medium">{getGradeMessage(overallGrade)}</div>
+                </div>
               </button>
 
-              {/* The 4 Category circles explicitly from the brief */}
-              {["onPageSeo", "usability", "geo", "performance"].map((catKey) => {
-                const catData = categoryScoresData.find((c) => c.key === catKey);
-                const grade = catData?.grade || "—";
-                const label = CATEGORY_META[catKey]?.label || catKey;
-                const color = CATEGORY_META[catKey]?.color || "#94a3b8";
-                
-                return (
-                  <ScoreCircle
-                    key={catKey}
-                    grade={grade}
-                    label={label}
-                    color={color}
-                    isActive={activeCategory === catKey}
-                    onClick={() => setActiveCategory(activeCategory === catKey ? null : catKey)}
-                  />
-                );
-              })}
+              <div className="w-[1px] h-[100px] bg-[#E2E8F0] mx-1"></div>
+
+              {/* Other Grades */}
+              <div className="flex items-center gap-5">
+                {["onPageSeo", "usability", "geo", "performance"].map((catKey) => {
+                  const catData = categoryScoresData.find((c) => c.key === catKey);
+                  const grade = catData?.grade || "—";
+                  const percentage = catData?.numericScore || 0;
+                  const label = CATEGORY_META[catKey]?.label || catKey;
+                  const color = GRADE_COLORS[grade] || CATEGORY_META[catKey]?.color || "#94a3b8";
+                  
+                  return (
+                    <button
+                      key={catKey}
+                      onClick={() => setActiveCategory(activeCategory === catKey ? null : catKey)}
+                      className={`flex flex-col items-center group transition-all pt-2 pb-2 px-2 rounded-xl cursor-pointer ${activeCategory === catKey ? 'bg-white shadow-sm ring-1 ring-slate-200' : 'hover:bg-white hover:shadow-sm'}`}
+                    >
+                      <ProgressRing 
+                        size={75} 
+                        strokeWidth={7} 
+                        percentage={percentage} 
+                        color={color} 
+                        grade={grade}
+                      />
+                      <div className="mt-3 text-center">
+                        <div className="text-[12px] font-bold text-[#111630]">{label}</div>
+                        <div className="text-[10px] text-[#64748B] mt-1 flex items-center justify-center gap-0.5 font-semibold group-hover:text-blue-500 transition-colors">
+                          {percentage} / 100 <ChevronRight size={10} strokeWidth={3} />
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
-            {/* Secondary Categories (Unreachable by 5 circles) */}
-            <div className="flex items-center gap-2 mt-2 pt-3 border-t border-white/[0.06] overflow-x-auto scrollbar-hide">
-              <span className="text-[11px] text-slate-500 font-medium shrink-0 mr-1">More Categories:</span>
-              {categoryScoresData
-                .filter((c) => !["onPageSeo", "usability", "geo", "performance"].includes(c.key))
-                .map((cat) => (
-                  <button
-                    key={cat.key}
-                    onClick={() => setActiveCategory(activeCategory === cat.key ? null : cat.key)}
-                    className={`px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-all border ${
-                      activeCategory === cat.key
-                        ? "bg-white/[0.1] text-white border-white/[0.2]"
-                        : "bg-white/[0.03] text-slate-400 border-white/[0.06] hover:bg-white/[0.06]"
-                    }`}
-                  >
-                    {cat.label}
-                  </button>
-              ))}
+            {/* Right: Screenshot Card */}
+            <div className="bg-white p-3 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-[#F1F5F9] relative z-10 w-[290px] shrink-0">
+              <div className="rounded-[12px] overflow-hidden bg-[#F8FAFC] aspect-[16/10] mb-3 relative">
+                {screenshot ? (
+                  <img src={screenshot} alt="Screenshot" className="w-full h-full object-cover object-top" />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-gray-300">
+                    <Monitor size={28} />
+                  </div>
+                )}
+              </div>
+              <div className="px-1.5 pb-1">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <Link2 size={12} className="text-[#94A3B8]" />
+                  <span className="text-[12px] font-bold text-[#111630] truncate">
+                    {audit?.url ? new URL(audit.url).hostname : "website.com"}
+                  </span>
+                </div>
+                <div className="text-[10px] text-[#94A3B8] pl-5 font-medium">
+                  Last analyzed: 2 hours ago
+                </div>
+              </div>
             </div>
           </div>
 
           {/* ——— New SEO Audit Layout (Phase 1) ——— */}
-          {(!activeCategory || activeCategory === "onPageSeo") && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              {/* Left Column: On-Page SEO Results */}
-              <div className="lg:col-span-8">
-                <OnPageSeoResults scores={scores.filter(s => s.category === "onPageSeo")} />
+          {(!activeCategory || ["onPageSeo", "geo", "usability", "localSeo", "performance", "technology", "social"].includes(activeCategory)) && (
+            <div className="flex flex-col lg:flex-row mt-10 relative gap-8 items-stretch">
+              {/* Left Column: On-Page SEO & GEO Results */}
+              <div className="flex-1 min-w-0 flex flex-col gap-[15px]">
+                {(!activeCategory || activeCategory === "onPageSeo") && (
+                  <OnPageSeoResults scores={scores.filter(s => s.category === "onPageSeo")} url={audit?.url} defaultOpen={activeCategory !== null} />
+                )}
+                {(!activeCategory || activeCategory === "geo") && (
+                  <GeoResults scores={scores.filter(s => s.category === "geo")} url={audit?.url} defaultOpen={activeCategory !== null} />
+                )}
+                {(!activeCategory || activeCategory === "usability") && (
+                  <UsabilityResults 
+                    scores={scores.filter(s => s.category === "usability")} 
+                    globalScreenshots={audit?.audit_result?.screenshots} 
+                    defaultOpen={activeCategory !== null}
+                  />
+                )}
+                {(!activeCategory || activeCategory === "localSeo") && (
+                  <LocalSeoResults scores={scores.filter(s => s.category === "localSeo")} defaultOpen={activeCategory !== null} />
+                )}
+                {(!activeCategory || activeCategory === "performance") && (
+                  <PerformanceResults scores={scores.filter(s => s.category === "performance")} defaultOpen={activeCategory !== null} />
+                )}
+                {(!activeCategory || activeCategory === "technology") && (
+                  <TechnologyResults scores={scores.filter(s => s.category === "technology")} defaultOpen={activeCategory !== null} />
+                )}
+                {(!activeCategory || activeCategory === "social") && (
+                  <SocialResults scores={scores.filter(s => s.category === "social")} defaultOpen={activeCategory !== null} />
+                )}
               </div>
               
-              {/* Right Column: Recommendations */}
-              <div className="lg:col-span-4">
+              {/* Right Column: Recommendations (Desktop) */}
+              <div className="hidden lg:block w-[500px] shrink-0 relative">
+                <div className="absolute inset-0 pointer-events-none">
+                  <div className="sticky top-4 w-full h-full max-h-[80vh] pointer-events-auto">
+                    <RecommendationsList recommendations={recommendations} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Recommendations (Mobile Fallback) */}
+              <div className="w-full lg:hidden shrink-0 h-[600px]">
                 <RecommendationsList recommendations={recommendations} />
               </div>
             </div>
           )}
 
-          {/* ——— Detailed Check Results (Fallback for other categories) ——— */}
-          {(() => {
-             const genericScores = activeCategory === "onPageSeo" 
-               ? [] 
-               : filteredScores.filter(s => s.category !== "onPageSeo");
-               
-             return genericScores.length > 0 && (
-              <div className="bg-[#111630] border border-white/[0.06] rounded-2xl overflow-hidden mt-6">
-                <div className="px-5 py-3.5 border-b border-white/[0.06] flex items-center justify-between">
-                  <h3 className="text-[13px] font-semibold text-white">
-                    {activeCategory
-                      ? `${CATEGORY_META[activeCategory]?.label || activeCategory} Checks`
-                      : "Other Checks"}
-                  </h3>
-                  <span className="text-[11px] text-slate-500">
-                    {genericScores.length} check
-                    {genericScores.length !== 1 ? "s" : ""}
-                  </span>
-                </div>
-                <div className="divide-y divide-white/[0.04]">
-                  {genericScores.map((item) => (
-                    <div
-                      key={item.check_key}
-                      className="flex items-start gap-3 px-5 py-3 hover:bg-white/[0.02] transition-colors"
-                    >
-                      <StatusIcon score={item.score} />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-[13px] font-medium text-slate-200">
-                            {item.label}
-                          </h4>
-                          {!activeCategory && (
-                            <span
-                              className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
-                              style={{
-                                backgroundColor: `${CATEGORY_META[item.category]?.color || "#666"}15`,
-                                color: CATEGORY_META[item.category]?.color || "#999",
-                              }}
-                            >
-                              {CATEGORY_META[item.category]?.label || item.category}
-                            </span>
-                          )}
-                        </div>
-                        {item.detail && (
-                          <p className="text-[12px] text-slate-500 mt-0.5">
-                            {item.detail}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-             );
-          })()}
+          {/* ——— Full Width: Google PageSpeed Insights ——— */}
+          {(!activeCategory || activeCategory === "performance") && (
+            <div className="w-full !mt-[15px] mb-10">
+              <PageSpeedResults scoreItem={scores.find(s => s.check_key === "pagespeed_insights")} />
+            </div>
+          )}
 
-          {/* ——— Improving Section — fallback for other categories ——— */}
-          {(() => {
-            const showGenericRecommendations = activeCategory && activeCategory !== "onPageSeo";
-            return showGenericRecommendations && recommendations.length > 0 && (
-              <div className="flex gap-6 mt-6">
-                <div className="w-[3px] bg-gradient-to-b from-blue-500 via-indigo-500 to-purple-500 rounded-full shrink-0" />
-                <div className="flex-1 space-y-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <ArrowUp size={16} className="text-blue-400" />
-                    <h3 className="text-[14px] font-semibold text-white">
-                      Improving
-                    </h3>
-                    <span className="text-[11px] text-slate-500">
-                      {recommendations.length} recommendation
-                      {recommendations.length !== 1 ? "s" : ""}
-                    </span>
-                  </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {recommendations.map((rec, i) => (
-                      <div
-                        key={i}
-                        className="bg-[#111630] border border-white/[0.06] rounded-xl p-4 hover:border-white/[0.1] hover:bg-[#131838] transition-all group"
-                      >
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <span
-                            className="text-[10px] px-2 py-0.5 rounded-full font-medium"
-                            style={{
-                              backgroundColor: `${CATEGORY_META[rec.category]?.color || "#666"}15`,
-                              color: CATEGORY_META[rec.category]?.color || "#999",
-                            }}
-                          >
-                            {CATEGORY_META[rec.category]?.label || rec.category}
-                          </span>
-                          <PriorityBadge priority={rec.priority} />
-                        </div>
-                        <p className="text-[13px] text-slate-300 font-medium leading-snug">
-                          {rec.title}
-                        </p>
-                        <div className="flex items-center gap-1 mt-3 text-[11px] text-slate-500 group-hover:text-blue-400 transition-colors">
-                          <span>View details</span>
-                          <ChevronRight size={12} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
 
-          {/* ——— Play/Pause + Loom — static placeholder ——— */}
-          <div className="flex items-center justify-end gap-2 pb-6">
-            <button className="w-10 h-10 rounded-full bg-[#111630] border border-white/[0.06] flex items-center justify-center text-slate-500 hover:text-slate-300 hover:border-white/[0.1] transition-all">
-              <Play size={16} />
-            </button>
-            <button className="w-10 h-10 rounded-full bg-[#111630] border border-white/[0.06] flex items-center justify-center text-slate-500 hover:text-slate-300 hover:border-white/[0.1] transition-all">
-              <Pause size={16} />
-            </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-[#111630] border border-white/[0.06] rounded-full text-[12px] font-medium text-slate-500 hover:text-slate-300 hover:border-white/[0.1] transition-all">
-              <Video size={14} />
-              Loom
-            </button>
-          </div>
+
+        </div>
         </div>
       </main>
-    </>
+    </div>
   );
 }
 
@@ -749,30 +728,7 @@ export default function AuditResults({
 // Top Bar Component (shared between loading / error / results states)
 // ---------------------------------------------------------------------------
 
-function TopBar({ activeTab }: { activeTab: string }) {
-  return (
-    <header className="flex items-center justify-between border-b border-white/[0.06] bg-[#0c1022]/80 backdrop-blur-sm px-6 h-14 shrink-0">
-      <div className="flex items-center gap-1">
-        {SEGMENT_TABS.map((tab) => (
-          <button
-            key={tab}
-            className={`px-4 py-2 text-[13px] font-medium rounded-md transition-all ${
-              activeTab === tab
-                ? "bg-blue-500/10 text-blue-400 border border-blue-500/15"
-                : "text-slate-500 hover:text-slate-300 hover:bg-white/[0.03] border border-transparent"
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-      <button className="flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-slate-400 hover:text-slate-200 rounded-lg border border-white/[0.08] hover:border-white/[0.12] bg-white/[0.02] hover:bg-white/[0.04] transition-all">
-        <FileText size={15} />
-        My SOP/Blueprint
-      </button>
-    </header>
-  );
-}
+
 
 // ---------------------------------------------------------------------------
 // Helper

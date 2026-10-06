@@ -15,7 +15,7 @@ export const AuditCategoryEnum = z.enum([
 ]);
 export type AuditCategory = z.infer<typeof AuditCategoryEnum>;
 
-export const CheckStatus = z.enum(["pass", "fail", "warning", "info"]);
+export const CheckStatus = z.enum(["pass", "fail", "warning", "info", "skipped"]);
 export type CheckStatus = z.infer<typeof CheckStatus>;
 
 export const Priority = z.enum(["High", "Medium", "Low"]);
@@ -34,6 +34,27 @@ export type LetterGrade = z.infer<typeof LetterGrade>;
 // Per-check result (stored in audit_scores)
 // ---------------------------------------------------------------------------
 
+export const Evidence = z.object({
+  metric: z.string().optional(),
+  value: z.union([z.string(), z.number(), z.boolean(), z.null()]).optional(),
+  unit: z.string().optional(),
+  target: z.union([
+    z.object({ min: z.number().optional(), max: z.number().optional() }),
+    z.string(),
+    z.number(),
+    z.boolean()
+  ]).optional(),
+  score: z.number().optional(),
+  found: z.array(z.string()).optional(),
+  missing: z.array(z.string()).optional(),
+  source: z.string().optional(),
+  rows: z.array(z.object({ label: z.string(), value: z.any() })).optional(),
+  items: z.array(z.object({ group: z.string().optional(), label: z.string(), detail: z.string().optional() })).optional(),
+  rule: z.string().optional(),
+  gap: z.string().optional(),
+});
+export type Evidence = z.infer<typeof Evidence>;
+
 export const CheckResult = z.object({
   key: z.string(),
   label: z.string(),
@@ -42,6 +63,7 @@ export const CheckResult = z.object({
   value: z.union([z.string(), z.number(), z.boolean(), z.null()]).optional(),
   detail: z.string().optional(),
   data: z.record(z.string(), z.unknown()).optional(),
+  evidence: Evidence.optional(),
 });
 export type CheckResult = z.infer<typeof CheckResult>;
 
@@ -53,6 +75,7 @@ export const Recommendation = z.object({
   title: z.string(),
   category: AuditCategoryEnum,
   priority: Priority,
+  checkKey: z.string().optional(),
 });
 export type Recommendation = z.infer<typeof Recommendation>;
 
@@ -90,7 +113,9 @@ export const AuditOutput = z.object({
   url: z.string(),
   auditedAt: z.string(),           // ISO timestamp
   overallGrade: z.string(),
+  overallScore: z.number().optional(),
   categoryScores: CategoryScores,
+  categoryNumeric: z.record(z.string(), z.number()).optional(),
   screenshots: Screenshots.optional(),
   onPageSeo: z.record(z.string(), z.unknown()),
   performance: z.record(z.string(), z.unknown()),

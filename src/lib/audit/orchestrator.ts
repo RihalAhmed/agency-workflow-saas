@@ -100,7 +100,7 @@ export async function runFullAudit(
   const allResults: CheckResult[] = [];
 
   // Module 1: On-Page SEO (sync)
-  const onPageResults = runOnPageSeoChecks(rawHtmlResult, auxResult, targetKeyword);
+  const onPageResults = runOnPageSeoChecks(rawHtmlResult, auxResult, targetKeyword, renderedResult);
   allResults.push(...onPageResults);
   log("analyzing", "On-Page SEO checks complete");
 
@@ -163,6 +163,7 @@ export async function runFullAudit(
         value: c.value,
         detail: c.detail,
         data: c.data,
+        evidence: c.evidence,
       };
     }
     return obj;
@@ -172,7 +173,9 @@ export async function runFullAudit(
     url,
     auditedAt: new Date().toISOString(),
     overallGrade,
+    overallScore: overall,
     categoryScores,
+    categoryNumeric,
     screenshots: renderedResult
       ? {
           desktop: renderedResult.screenshots.desktop,

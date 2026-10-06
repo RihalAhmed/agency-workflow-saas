@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import { runFullAudit } from "@/lib/audit/orchestrator";
 
-export const maxDuration = 120; // Allow up to 120s for full audit execution
+export const maxDuration = 300; // PSI alone can take 90s+ (up to 150s timeout), plus Playwright rendering
 
 export async function POST(
   req: Request,
@@ -64,8 +64,10 @@ export async function POST(
     const statusToScore = (status: string) => {
       switch (status) {
         case "pass": return 2;
-        case "warning": case "info": return 1;
+        case "warning": return 1;
+        case "info": return 3;
         case "fail": return 0;
+        case "skipped": return -1;
         default: return 1;
       }
     };
@@ -90,7 +92,7 @@ export async function POST(
           label: check.label || checkKey,
           score: statusToScore(check.status),
           detail: check.detail,
-          data: check.data,
+          data: check.evidence ? { ...check.data, evidence: check.evidence } : check.data,
         });
       }
     }
@@ -106,37 +108,22 @@ export async function POST(
       }
     }
 
-    // Update the audit record with results
     const updatePayload: Record<string, any> = {
       status: "complete",
-      overall_score: Math.round(
-        Object.values(auditResult.categoryScores).filter(
-          (v) => !["Info only", "All checks passed", "Not applicable"].includes(v)
-        ).length > 0
-          ? (() => {
-              // Compute numeric overall from the scoring module's output
-              // The overallGrade is a letter, we need the numeric for the DB
-              const gradeToNum: Record<string, number> = {
-                "A+": 98, A: 95, "A-": 92,
-                "B+": 88, B: 85, "B-": 82,
-                "C+": 78, C: 75, "C-": 72,
-                "D+": 68, D: 65, "D-": 62,
-                F: 50,
-              };
-              return gradeToNum[auditResult.overallGrade] || 50;
-            })()
-          : 0
-      ),
+      overall_score: auditResult.overallScore ?? 0,
     };
 
     // Try to store the full result and category scores
     // These columns may not exist yet if the migration hasn't been run
     try {
-      // Strip screenshots from the stored result to keep JSONB manageable
+      // Keep screenshots in the stored result (they are now compressed JPEGs, much lighter)
       const storedResult = { ...auditResult };
-      delete (storedResult as any).screenshots;
 
-      updatePayload.audit_result = storedResult;
+      // Preserve existing fields like companyName from the initial run
+      updatePayload.audit_result = { 
+        ...(audit.audit_result || {}), 
+        ...storedResult 
+      };
       updatePayload.category_scores = auditResult.categoryScores;
     } catch (e) {
       console.warn("[Audit] Could not prepare audit_result for storage:", e);

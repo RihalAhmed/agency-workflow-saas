@@ -25,7 +25,68 @@ export function runPerformanceChecks(
     audits[key]?.score ?? null;
 
   // -----------------------------------------------------------------------
-  // 1. Server Response Time
+  // 1. Google PageSpeed Insights (Full Object)
+  // -----------------------------------------------------------------------
+  const mobileCat = mCats.performance;
+  const desktopCat = dCats.performance;
+  // null = Google returned no score (API failed/timed out) — never coerce to 0,
+  // otherwise a failed request is indistinguishable from a genuinely terrible site.
+  const mobileScore: number | null =
+    typeof mobileCat?.score === "number" ? Math.round(mobileCat.score * 100) : null;
+  const desktopScore: number | null =
+    typeof desktopCat?.score === "number" ? Math.round(desktopCat.score * 100) : null;
+
+  const mobileFieldData = psi.mobile.loadingExperience?.metrics;
+  const desktopFieldData = psi.desktop.loadingExperience?.metrics;
+
+  const knownScores = [mobileScore, desktopScore].filter((s): s is number => s !== null);
+  const psiStatus: CheckResult["status"] =
+    knownScores.length === 0
+      ? "info"
+      : knownScores.every((s) => s >= 90)
+        ? "pass"
+        : knownScores.every((s) => s >= 50)
+          ? "warning"
+          : "fail";
+
+  results.push({
+    key: "pagespeed_insights",
+    label: "Google PageSpeed Insights",
+    category: "performance",
+    status: psiStatus,
+    detail: knownScores.length === 0
+      ? "Google PageSpeed Insights data could not be retrieved for this audit."
+      : "Comprehensive PageSpeed Insights analysis.",
+    data: {
+      mobile: {
+        score: mobileScore,
+        available: mobileScore !== null,
+        error: psi.mobile.error ?? null,
+        hasFieldData: !!mobileFieldData,
+        fcp: mAudits['first-contentful-paint']?.displayValue || "N/A",
+        speedIndex: mAudits['speed-index']?.displayValue || "N/A",
+        lcp: mAudits['largest-contentful-paint']?.displayValue || "N/A",
+        tti: mAudits['interactive']?.displayValue || "N/A",
+        tbt: mAudits['total-blocking-time']?.displayValue || "N/A",
+        cls: mAudits['cumulative-layout-shift']?.displayValue || "N/A",
+      },
+      desktop: {
+        score: desktopScore,
+        available: desktopScore !== null,
+        error: psi.desktop.error ?? null,
+        hasFieldData: !!desktopFieldData,
+        fcp: dAudits['first-contentful-paint']?.displayValue || "N/A",
+        speedIndex: dAudits['speed-index']?.displayValue || "N/A",
+        lcp: dAudits['largest-contentful-paint']?.displayValue || "N/A",
+        tti: dAudits['interactive']?.displayValue || "N/A",
+        tbt: dAudits['total-blocking-time']?.displayValue || "N/A",
+        cls: dAudits['cumulative-layout-shift']?.displayValue || "N/A",
+      }
+    },
+  });
+
+  // -----------------------------------------------------------------------
+  // 2. Server Response Time
   // -----------------------------------------------------------------------
   const srtMobile = ms(mAudits, "server-response-time");
   const srtDesktop = ms(dAudits, "server-response-time");
@@ -239,23 +300,38 @@ export function runPerformanceChecks(
   });
 
   // -----------------------------------------------------------------------
-  // 10. Overall Performance Score (mobile + desktop)
+  // 10. Minification (JS/CSS)
   // -----------------------------------------------------------------------
-  const perfMobile = (mCats.performance?.score ?? 0) * 100;
-  const perfDesktop = (dCats.performance?.score ?? 0) * 100;
+  const unminifiedJS = mAudits["unminified-javascript"] || dAudits["unminified-javascript"];
+  const unminifiedCSS = mAudits["unminified-css"] || dAudits["unminified-css"];
+  const minScore = Math.min(unminifiedJS?.score ?? 1, unminifiedCSS?.score ?? 1);
+  
   results.push({
-    key: "performance_score",
-    label: "Performance Score",
+    key: "minification",
+    label: "Minification",
     category: "performance",
-    status:
-      perfMobile >= 90 ? "pass" : perfMobile >= 50 ? "warning" : "fail",
-    value: `${Math.round(perfMobile)}/100`,
-    detail: `Mobile: ${Math.round(perfMobile)}/100 — Desktop: ${Math.round(perfDesktop)}/100`,
-    data: { mobile: perfMobile, desktop: perfDesktop },
+    status: minScore === 1 ? "pass" : minScore >= 0.5 ? "warning" : "fail",
+    detail: minScore === 1 
+      ? "All your JavaScript and CSS files appear to be minified."
+      : "Some of your JavaScript or CSS files are not minified, which increases payload size.",
   });
 
   // -----------------------------------------------------------------------
-  // 11. Deprecated HTML Tags
+  // 11. Browser Caching
+  // -----------------------------------------------------------------------
+  const caching = mAudits["uses-long-cache-ttl"] || dAudits["uses-long-cache-ttl"];
+  results.push({
+    key: "browser_caching",
+    label: "Browser Caching",
+    category: "performance",
+    status: caching?.score === 1 ? "pass" : caching?.score >= 0.5 ? "warning" : "fail",
+    detail: caching?.score === 1
+      ? "The static files on your page appear to be served with efficient cache lifetimes."
+      : "Some static files do not have efficient cache lifetimes.",
+  });
+
+  // -----------------------------------------------------------------------
+  // 12. Deprecated HTML Tags
   // -----------------------------------------------------------------------
   const $ = cheerio.load(raw.rawHtml);
   const deprecatedTags = ["center", "font", "marquee", "blink", "big", "strike", "tt", "acronym"];
@@ -267,36 +343,45 @@ export function runPerformanceChecks(
   }
   results.push({
     key: "deprecated_html",
-    label: "Deprecated HTML Tags",
+    label: "Deprecated HTML",
     category: "performance",
-    status: foundDeprecated.length === 0 ? "pass" : "warning",
+    status: foundDeprecated.length === 0 ? "pass" : "fail",
     value: foundDeprecated.length,
     detail:
       foundDeprecated.length === 0
-        ? "No deprecated HTML tags found"
-        : `Found: ${foundDeprecated.join(", ")}`,
-    data: { tags: foundDeprecated },
+        ? "No deprecated HTML tags have been found within your page."
+        : `Found deprecated tags: ${foundDeprecated.join(", ")}. These should be replaced with modern CSS.`,
   });
 
   // -----------------------------------------------------------------------
-  // 12. Inline Styles
+  // 13. Inline Styles
   // -----------------------------------------------------------------------
   const inlineStyleCount = $("[style]").length;
   results.push({
     key: "inline_styles",
     label: "Inline Styles",
     category: "performance",
-    status:
-      inlineStyleCount === 0
-        ? "pass"
-        : inlineStyleCount <= 10
-          ? "warning"
-          : "fail",
+    status: inlineStyleCount === 0 ? "pass" : "warning",
     value: inlineStyleCount,
-    detail:
-      inlineStyleCount === 0
-        ? "No inline styles found"
-        : `${inlineStyleCount} elements with inline style attributes`,
+    detail: inlineStyleCount === 0
+      ? "No inline styles found."
+      : "Your page appears to be using Inline Styles.\nInline Styles are an older coding practice and discouraged in favor of using CSS style sheets, due to their ability to degrade page load performance and unnecessarily complicate HTML Code.",
+  });
+
+  // -----------------------------------------------------------------------
+  // 14. Image Optimization
+  // -----------------------------------------------------------------------
+  const unoptimizedImages = mAudits["uses-optimized-images"] || dAudits["uses-optimized-images"];
+  const isImagesOptimized = (unoptimizedImages?.score ?? 1) >= 0.8;
+  
+  results.push({
+    key: "image_optimization",
+    label: "Image Optimization",
+    category: "performance",
+    status: isImagesOptimized ? "pass" : "warning",
+    detail: isImagesOptimized 
+      ? "All of the images on your page appear to be optimized."
+      : "Some images on your page could be further optimized or served in next-gen formats (like WebP) to save data.",
   });
 
   return results;
