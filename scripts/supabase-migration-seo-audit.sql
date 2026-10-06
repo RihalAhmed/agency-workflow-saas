@@ -1,4 +1,4 @@
--- Proseflow SEO Audit — Supabase Migration
+-- Prosflow SEO Audit — Supabase Migration
 -- Run this in the Supabase Dashboard → SQL Editor
 --
 -- Adds two JSONB columns to the 'audits' table:

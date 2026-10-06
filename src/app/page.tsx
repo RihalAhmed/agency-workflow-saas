@@ -7,8 +7,12 @@ import WhyItWorks from "@/components/homepage/WhyItWorks";
 import Pricing from "@/components/homepage/Pricing";
 import FinalCta from "@/components/homepage/FinalCta";
 import Footer from "@/components/homepage/Footer";
+import { getCurrentUser } from "@/lib/auth/session";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const user = await getCurrentUser();
+  const isLoggedIn = !!user;
+
   return (
     <div
       style={{
@@ -17,7 +21,7 @@ export default function HomePage() {
         color: "#061b31",
       }}
     >
-      <Header />
+      <Header isLoggedIn={isLoggedIn} />
       <main>
         <Hero />
         <HowItWorks />

@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { 
   BarChart3, 
   Layout, 
@@ -12,7 +12,8 @@ import {
   Users, 
   BookOpen, 
   Search, 
-  Video
+  Video,
+  LogOut
 } from "lucide-react";
 
 const NavItem = ({ icon: Icon, label, isActive, href, isPlaceholder }: any) => {
@@ -37,8 +38,15 @@ const NavItem = ({ icon: Icon, label, isActive, href, isPlaceholder }: any) => {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const isAudit = pathname?.startsWith("/audit");
   const isApp = pathname?.startsWith("/app");
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/");
+    router.refresh();
+  };
 
   return (
     <div className="flex h-screen bg-[#f5f6fa] text-slate-900 font-body overflow-hidden">
@@ -47,9 +55,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {/* Brand Mark */}
         <div className="flex flex-col items-center mb-6">
           <div className="flex items-center justify-center w-[53px] h-[49px]">
-            <Image src="/logo-icon.svg" alt="Proseflow Icon" width={53} height={49} className="w-full h-full" />
+            <Image src="/logo-icon.svg" alt="Prosflow Icon" width={53} height={49} className="w-full h-full" />
           </div>
-          <Image src="/logo-text.svg" alt="Proseflow" width={51} height={11} className="mt-2" />
+          <Image src="/logo-text.svg" alt="Prosflow" width={51} height={11} className="mt-2" />
         </div>
 
         {/* Separator */}
@@ -74,6 +82,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
           
           <NavItem icon={Settings} label="Settings" isPlaceholder />
+          <button 
+            onClick={handleLogout}
+            className="w-full h-[76px] flex flex-col items-center justify-center gap-2 transition-colors hover:bg-white/10 text-white cursor-pointer opacity-80 hover:opacity-100"
+          >
+            <LogOut size={24} className="text-white" />
+            <span className="text-[13px] font-medium tracking-tight">Logout</span>
+          </button>
         </div>
       </aside>
 

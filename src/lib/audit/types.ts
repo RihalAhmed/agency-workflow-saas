@@ -64,6 +64,9 @@ export const CheckResult = z.object({
   detail: z.string().optional(),
   data: z.record(z.string(), z.unknown()).optional(),
   evidence: Evidence.optional(),
+  // Optional per-check score (0 = fail, 1 = warning, 2 = pass) emitted by some
+  // modules (e.g. localSeo). audit_scores.score is still derived from `status`.
+  score: z.number().optional(),
 });
 export type CheckResult = z.infer<typeof CheckResult>;
 

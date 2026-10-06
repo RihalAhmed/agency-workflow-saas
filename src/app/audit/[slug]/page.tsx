@@ -69,6 +69,7 @@ interface Recommendation {
 
 interface CheckItem {
   check_key: string;
+  key?: string;
   label: string;
   category: string;
   score: number;

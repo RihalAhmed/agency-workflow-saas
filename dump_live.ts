@@ -8,7 +8,7 @@ async function main() {
   
   const res = await fetch(url);
   const html = await res.text();
-  const headers = {};
+  const headers: Record<string, string> = {};
   res.headers.forEach((v, k) => { headers[k] = v; });
   
   const rawHtmlResult = {

@@ -19,7 +19,7 @@ export async function fetchAux(url: string): Promise<AuxFilesResult> {
         signal: AbortSignal.timeout(10_000),
         headers: {
           "User-Agent":
-            "Mozilla/5.0 (compatible; ProseflowAuditBot/1.0)",
+            "Mozilla/5.0 (compatible; ProsflowAuditBot/1.0)",
         },
       });
       const body = res.ok ? await res.text() : null;

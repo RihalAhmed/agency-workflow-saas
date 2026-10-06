@@ -199,7 +199,7 @@ function DropdownPanel({
 /* ─────────────────────────────────────────────────────────────────── */
 /*  Header                                                             */
 /* ─────────────────────────────────────────────────────────────────── */
-export default function Header() {
+export default function Header({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -387,30 +387,78 @@ export default function Header() {
 
           {/* ── CTA + mobile toggle ── */}
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <Link
-              href="/app"
-              id="header-cta"
-              style={{
-                display: "inline-block",
-                padding: "9px 22px",
-                borderRadius: "12px",
-                backgroundColor: "#533afd",
-                color: "#ffffff",
-                fontWeight: 600,
-                fontSize: "14px",
-                textDecoration: "none",
-                fontFamily: "Inter, sans-serif",
-                transition: "background-color 0.15s",
-              }}
-              onMouseOver={(e) => {
-                (e.currentTarget as HTMLElement).style.backgroundColor = "#4434d4";
-              }}
-              onMouseOut={(e) => {
-                (e.currentTarget as HTMLElement).style.backgroundColor = "#533afd";
-              }}
-            >
-              Start Winning
-            </Link>
+            {isLoggedIn ? (
+              <Link
+                href="/audit"
+                id="header-cta"
+                style={{
+                  display: "inline-block",
+                  padding: "9px 22px",
+                  borderRadius: "12px",
+                  backgroundColor: "#533afd",
+                  color: "#ffffff",
+                  fontWeight: 600,
+                  fontSize: "14px",
+                  textDecoration: "none",
+                  fontFamily: "Inter, sans-serif",
+                  transition: "background-color 0.15s",
+                }}
+                onMouseOver={(e) => {
+                  (e.currentTarget as HTMLElement).style.backgroundColor = "#4434d4";
+                }}
+                onMouseOut={(e) => {
+                  (e.currentTarget as HTMLElement).style.backgroundColor = "#533afd";
+                }}
+              >
+                Go to Audit
+              </Link>
+            ) : (
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <Link
+                  href="/login"
+                  style={{
+                    display: "inline-block",
+                    padding: "9px 16px",
+                    color: "#425466",
+                    fontWeight: 600,
+                    fontSize: "14px",
+                    textDecoration: "none",
+                    transition: "color 0.15s",
+                  }}
+                  onMouseOver={(e) => {
+                    (e.currentTarget as HTMLElement).style.color = "#061b31";
+                  }}
+                  onMouseOut={(e) => {
+                    (e.currentTarget as HTMLElement).style.color = "#425466";
+                  }}
+                >
+                  Log In
+                </Link>
+                <Link
+                  href="/signup"
+                  style={{
+                    display: "inline-block",
+                    padding: "9px 22px",
+                    borderRadius: "12px",
+                    backgroundColor: "#533afd",
+                    color: "#ffffff",
+                    fontWeight: 600,
+                    fontSize: "14px",
+                    textDecoration: "none",
+                    fontFamily: "Inter, sans-serif",
+                    transition: "background-color 0.15s",
+                  }}
+                  onMouseOver={(e) => {
+                    (e.currentTarget as HTMLElement).style.backgroundColor = "#4434d4";
+                  }}
+                  onMouseOut={(e) => {
+                    (e.currentTarget as HTMLElement).style.backgroundColor = "#533afd";
+                  }}
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
 
             {/* Mobile hamburger */}
             <button
@@ -490,22 +538,59 @@ export default function Header() {
               </a>
             ))}
             <div style={{ marginTop: "8px" }}>
-              <Link
-                href="/app"
-                style={{
-                  display: "block",
-                  padding: "11px 20px",
-                  borderRadius: "12px",
-                  backgroundColor: "#533afd",
-                  color: "#ffffff",
-                  fontWeight: 600,
-                  fontSize: "14px",
-                  textDecoration: "none",
-                  textAlign: "center",
-                }}
-              >
-                Start Winning
-              </Link>
+              {isLoggedIn ? (
+                <Link
+                  href="/audit"
+                  style={{
+                    display: "block",
+                    padding: "11px 20px",
+                    borderRadius: "12px",
+                    backgroundColor: "#533afd",
+                    color: "#ffffff",
+                    fontWeight: 600,
+                    fontSize: "14px",
+                    textDecoration: "none",
+                    textAlign: "center",
+                  }}
+                >
+                  Go to Audit
+                </Link>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  <Link
+                    href="/login"
+                    style={{
+                      display: "block",
+                      padding: "11px 20px",
+                      borderRadius: "12px",
+                      backgroundColor: "rgba(6,27,49,0.05)",
+                      color: "#061b31",
+                      fontWeight: 600,
+                      fontSize: "14px",
+                      textDecoration: "none",
+                      textAlign: "center",
+                    }}
+                  >
+                    Log In
+                  </Link>
+                  <Link
+                    href="/signup"
+                    style={{
+                      display: "block",
+                      padding: "11px 20px",
+                      borderRadius: "12px",
+                      backgroundColor: "#533afd",
+                      color: "#ffffff",
+                      fontWeight: 600,
+                      fontSize: "14px",
+                      textDecoration: "none",
+                      textAlign: "center",
+                    }}
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         )}
