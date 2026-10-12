@@ -25,14 +25,19 @@ const bakbakOne = Bakbak_One({
 
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["300", "400", "500", "600"],
   variable: "--font-inter",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Niche Landing-Page Generator",
-  description: "High-converting, token-driven local business landing pages",
+  title: "ProsFlow — Turn any prospect's website into a client-winning pitch",
+  description:
+    "Audit your prospect's site, get a personalised sales script, and share a branded report page — all in three steps. Built for marketing agency owners and freelancers.",
+  icons: {
+    icon: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export default function RootLayout({

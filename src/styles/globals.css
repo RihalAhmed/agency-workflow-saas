@@ -28,6 +28,33 @@
   --font-body: var(--font-poppins), sans-serif;
 }
 
+/*
+ * Trust Segment palette. Raw values live in src/styles/trust-tokens.css.
+ * `static` keeps these vars in :root even before any component uses them
+ * (Tailwind v4 otherwise drops unused theme variables).
+ */
+@theme static {
+  --color-tr-bg: var(--tr-bg);
+  --color-tr-surface: var(--tr-surface);
+  --color-tr-raised: var(--tr-raised);
+  --color-tr-line: var(--tr-line);
+  --color-tr-line-strong: var(--tr-line-strong);
+  --color-tr-text: var(--tr-text);
+  --color-tr-text-dim: var(--tr-text-dim);
+  --color-tr-text-mute: var(--tr-text-mute);
+  --color-tr-brand: var(--tr-brand);
+  --color-tr-ok: var(--tr-ok);
+  --color-tr-warn: var(--tr-warn);
+  --color-tr-bad: var(--tr-bad);
+}
+
+/*
+ * Pre-generate the core tr-* color utilities so they exist before the
+ * redesigned components land (and can be tested on scratch elements).
+ * Safe to remove once the Trust components reference these classes directly.
+ */
+@source inline("{bg,text,border}-tr-{bg,surface,raised,line,line-strong,text,text-dim,text-mute,brand,ok,warn,bad}");
+
 body {
   background-color: var(--surface);
   color: var(--ink);
@@ -48,3 +75,43 @@ body {
   --color-ink-muted: var(--ink-muted);
   --color-border: var(--border);
 }
+
+/* Custom transparent scrollbar for dashboard */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+  background-color: transparent;
+}
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100, 0.5);
+  border-radius: 9999px;
+  border: 4px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(100, 100, 100, 0.7);
+}
+
+/*
+ * Sidebar redesign palette. Raw values live in src/styles/sidebar-tokens.css.
+ */
+@theme static {
+  --color-sb-bg: var(--sb-bg);
+  --color-sb-surface: var(--sb-surface);
+  --color-sb-surface-hover: var(--sb-surface-hover);
+  --color-sb-surface-active: var(--sb-surface-active);
+  --color-sb-text: var(--sb-text);
+  --color-sb-text-muted: var(--sb-text-muted);
+  --color-sb-text-caption: var(--sb-text-caption);
+  --color-sb-border: var(--sb-border);
+  --color-sb-border-subtle: var(--sb-border-subtle);
+  --color-sb-brand: var(--sb-brand);
+  --color-sb-brand-hover: var(--sb-brand-hover);
+  --color-sb-accent-amber: var(--sb-accent-amber);
+  --color-sb-accent-amber-hover: var(--sb-accent-amber-hover);
+  --color-sb-accent-amber-bg: var(--sb-accent-amber-bg);
+}
+

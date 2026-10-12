@@ -1,0 +1,38 @@
+/*
+ * Prosflow Design System — Sidebar Tokens (Extracted from Design Reference)
+ * Prefixed with --sb-* to avoid collision with global or trust tokens.
+ */
+
+:root {
+  /* Surfaces & Backgrounds */
+  --sb-bg: #f6f8fa;
+  --sb-surface: #ffffff;
+  --sb-surface-hover: rgba(15, 23, 42, 0.04);
+  --sb-surface-active: #ffffff;
+
+  /* Text & Inks */
+  --sb-text: #0f172a;
+  --sb-text-muted: #64748b;
+  --sb-text-caption: #94a3b8;
+
+  /* Borders & Hairlines */
+  --sb-border: #e2e8f0;
+  --sb-border-subtle: rgba(226, 232, 240, 0.8);
+
+  /* Brand & Accents */
+  --sb-brand: #533afd;
+  --sb-brand-hover: #432ae3;
+  --sb-accent-amber: #d99706;
+  --sb-accent-amber-hover: #b45309;
+  --sb-accent-amber-bg: #fffbeb;
+
+  /* Component Radii */
+  --sb-radius-sm: 8px;
+  --sb-radius-md: 10px;
+  --sb-radius-lg: 14px;
+  --sb-radius-xl: 16px;
+
+  /* Shadows */
+  --sb-shadow-nav-active: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --sb-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+}

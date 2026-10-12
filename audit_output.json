@@ -1,0 +1,391 @@
+[
+  {
+    "key": "indexability",
+    "label": "Indexability",
+    "category": "onPageSeo",
+    "status": "pass",
+    "detail": "Page can be indexed and followed",
+    "evidence": {
+      "source": "Raw HTML",
+      "rule": "no noindex or nofollow instruction",
+      "rows": [
+        {
+          "label": "Meta robots",
+          "value": "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+        },
+        {
+          "label": "Googlebot meta",
+          "value": "not set"
+        },
+        {
+          "label": "X-Robots-Tag header",
+          "value": "not available"
+        },
+        {
+          "label": "Page can be indexed",
+          "value": "Yes"
+        },
+        {
+          "label": "Page links can be followed",
+          "value": "Yes"
+        }
+      ]
+    },
+    "data": {
+      "isWordPress": true
+    }
+  },
+  {
+    "key": "robots_txt",
+    "label": "Robots.txt",
+    "category": "onPageSeo",
+    "status": "pass",
+    "value": true,
+    "detail": "Found and accessible"
+  },
+  {
+    "key": "robots_blocking",
+    "label": "Search Engine Access",
+    "category": "onPageSeo",
+    "status": "pass",
+    "detail": "No blocking rules for major search engines"
+  },
+  {
+    "key": "xml_sitemap",
+    "label": "XML Sitemap",
+    "category": "onPageSeo",
+    "status": "fail",
+    "value": false,
+    "detail": "No sitemap.xml or sitemap_index.xml found",
+    "data": {
+      "url": ""
+    }
+  },
+  {
+    "key": "ssl_enabled",
+    "label": "SSL Enabled",
+    "category": "onPageSeo",
+    "status": "pass",
+    "value": true,
+    "detail": "HTTPS connection"
+  },
+  {
+    "key": "https_redirect",
+    "label": "HTTPS Redirect",
+    "category": "onPageSeo",
+    "status": "pass",
+    "value": true,
+    "detail": "Site redirects to HTTPS"
+  },
+  {
+    "key": "canonical",
+    "label": "Canonical Tag",
+    "category": "onPageSeo",
+    "status": "pass",
+    "detail": "Canonical tag is set correctly",
+    "evidence": {
+      "source": "Raw HTML",
+      "rule": "one canonical tag pointing to this page's own URL",
+      "rows": [
+        {
+          "label": "Canonical tags found",
+          "value": 1
+        },
+        {
+          "label": "Canonical URL",
+          "value": "https://saltydogpestcontrol.com/"
+        },
+        {
+          "label": "Audited URL",
+          "value": "https://saltydogpestcontrol.com/"
+        },
+        {
+          "label": "Matches audited URL",
+          "value": "Yes"
+        }
+      ]
+    },
+    "data": {
+      "isWordPress": true
+    }
+  },
+  {
+    "key": "title_tag",
+    "label": "Title Tag",
+    "category": "onPageSeo",
+    "status": "warning",
+    "detail": "30 chars (recommended 50-60)",
+    "evidence": {
+      "source": "Raw HTML",
+      "rule": "50-60 characters",
+      "gap": "20 characters below the 50 minimum",
+      "rows": [
+        {
+          "label": "Title",
+          "value": "Pest Control in Whidbey Island"
+        },
+        {
+          "label": "Length",
+          "value": "30 characters"
+        },
+        {
+          "label": "Recommended",
+          "value": "50-60 characters"
+        },
+        {
+          "label": "Title tags found",
+          "value": 1
+        }
+      ]
+    },
+    "data": {
+      "isWordPress": true,
+      "serpPreview": true,
+      "url": "https://saltydogpestcontrol.com/"
+    }
+  },
+  {
+    "key": "meta_description",
+    "label": "Meta Description",
+    "category": "onPageSeo",
+    "status": "warning",
+    "detail": "165 chars (recommended 120-160)",
+    "evidence": {
+      "source": "Raw HTML",
+      "rule": "120-160 characters",
+      "gap": "5 characters above the 160 maximum; may be shortened in results",
+      "rows": [
+        {
+          "label": "Description",
+          "value": "Salty Dog Pest Control offers veteran-owned, personalized service to keep homes in Oak Harbor, WA, and Whidbey Island pest-free. Expect expert care with every visit."
+        },
+        {
+          "label": "Length",
+          "value": "165 characters"
+        },
+        {
+          "label": "Recommended",
+          "value": "120-160 characters"
+        },
+        {
+          "label": "Meta description tags found",
+          "value": 1
+        }
+      ]
+    },
+    "data": {
+      "isWordPress": true,
+      "serpPreview": true,
+      "url": "https://saltydogpestcontrol.com/"
+    }
+  },
+  {
+    "key": "h1_usage",
+    "label": "H1 Tag",
+    "category": "onPageSeo",
+    "status": "pass",
+    "detail": "1 H1 tag found",
+    "evidence": {
+      "source": "Raw HTML",
+      "rule": "exactly one H1",
+      "rows": [
+        {
+          "label": "H1 tags found",
+          "value": 1
+        }
+      ],
+      "items": [
+        {
+          "label": "Pest Control Services in Whidbey Island, Skagit County and Surrounding Areas"
+        }
+      ]
+    },
+    "data": {
+      "isWordPress": true
+    }
+  },
+  {
+    "key": "headings",
+    "label": "Heading Structure",
+    "category": "onPageSeo",
+    "status": "warning",
+    "detail": "1 skipped heading level(s)",
+    "evidence": {
+      "source": "Raw HTML",
+      "rule": "no skipped heading levels",
+      "gap": "1 skipped heading level(s)",
+      "rows": [
+        {
+          "label": "Headings by level",
+          "value": "H1: 1 | H2: 16 | H3: 19 | H4: 6 | H5: 0 | H6: 0"
+        },
+        {
+          "label": "Skipped levels",
+          "value": 1
+        }
+      ],
+      "items": [
+        {
+          "label": "H2 -> H4",
+          "detail": "Local Know-How"
+        }
+      ]
+    },
+    "data": {
+      "isWordPress": true
+    }
+  },
+  {
+    "key": "content_amount",
+    "label": "Content Amount",
+    "category": "onPageSeo",
+    "status": "pass",
+    "detail": "1256 words",
+    "evidence": {
+      "source": "Raw HTML",
+      "rule": "at least 300 words",
+      "rows": [
+        {
+          "label": "Word count",
+          "value": "1256 words"
+        },
+        {
+          "label": "Recommended",
+          "value": "at least 300 words"
+        }
+      ]
+    },
+    "data": {
+      "isWordPress": true
+    }
+  },
+  {
+    "key": "image_alt",
+    "label": "Image Alt Attributes",
+    "category": "onPageSeo",
+    "status": "pass",
+    "detail": "All 24 images have alt attributes",
+    "evidence": {
+      "source": "Raw HTML",
+      "rule": "all images must have an alt attribute",
+      "rows": [
+        {
+          "label": "Images checked",
+          "value": 24
+        },
+        {
+          "label": "With alt text",
+          "value": 24
+        },
+        {
+          "label": "Decorative, empty alt",
+          "value": 0
+        },
+        {
+          "label": "Missing alt",
+          "value": 0
+        }
+      ],
+      "items": []
+    },
+    "data": {
+      "isWordPress": true
+    }
+  },
+  {
+    "key": "schema",
+    "label": "Schema.org",
+    "category": "onPageSeo",
+    "status": "pass",
+    "detail": "Structured data is well-formed and contains business identity",
+    "evidence": {
+      "source": "Raw HTML",
+      "rule": "valid JSON-LD with Organization/LocalBusiness identity (name, address)",
+      "gap": "",
+      "rows": [
+        {
+          "label": "Structured data blocks",
+          "value": "2 valid, 0 invalid"
+        },
+        {
+          "label": "Types found",
+          "value": "WebPage, ImageObject, BreadcrumbList, WebSite, Organization, LocalBusiness, PestControlService, PostalAddress, GeoCoordinates, AggregateRating, Person, EducationalOccupationalCredential, FAQPage, WPHeader, CreativeWork, Rating, WPFooter"
+        },
+        {
+          "label": "Business/organization type present",
+          "value": "Yes"
+        },
+        {
+          "label": "Name",
+          "value": "Yes"
+        },
+        {
+          "label": "Address",
+          "value": "Yes"
+        },
+        {
+          "label": "Telephone",
+          "value": "Yes"
+        }
+      ]
+    },
+    "data": {
+      "isWordPress": true
+    }
+  },
+  {
+    "key": "links",
+    "label": "Link Structure",
+    "category": "onPageSeo",
+    "status": "warning",
+    "detail": "1 complex URL",
+    "evidence": {
+      "source": "Raw HTML",
+      "rule": "descriptive anchor text and clean URLs",
+      "gap": "1 complex URL",
+      "rows": [
+        {
+          "label": "Total links",
+          "value": 125
+        },
+        {
+          "label": "Internal",
+          "value": 121
+        },
+        {
+          "label": "External (follow)",
+          "value": 4
+        },
+        {
+          "label": "External (nofollow/sponsored/ugc)",
+          "value": 0
+        },
+        {
+          "label": "Unique internal URLs",
+          "value": 76
+        },
+        {
+          "label": "Skipped (mailto, tel, #anchor)",
+          "value": 16
+        },
+        {
+          "label": "Internal links with missing or vague anchor text",
+          "value": 0
+        },
+        {
+          "label": "Overly complex internal URLs",
+          "value": 1
+        }
+      ],
+      "items": [
+        {
+          "group": "Complex URL",
+          "label": "https://saltydogpestcontrol.com/pest-control-in-la-conner-wa-protecting-historic-homes-waterfront-properties-and-local-businesses-year-round"
+        }
+      ]
+    },
+    "data": {
+      "isWordPress": true
+    }
+  }
+]

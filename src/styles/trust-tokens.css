@@ -1,0 +1,31 @@
+/*
+ * Trust Segment design tokens.
+ * Source of truth: trust-frontend-redesign.md §2.
+ * Mapped into Tailwind as --color-tr-* in src/styles/globals.css (@theme static).
+ * Imported once by src/components/trust/TrustSegment.tsx.
+ */
+:root {
+  /* Surface stack */
+  --tr-bg:          hsl(222 15% 6%);   /* page under the segment */
+  --tr-surface:     hsl(222 15% 9%);   /* cards */
+  --tr-raised:      hsl(222 15% 12%);  /* nested cards, expanded rows */
+  --tr-line:        hsl(222 13% 18%);  /* 0.5px borders */
+  --tr-line-strong: hsl(222 13% 24%);
+
+  /* Text */
+  --tr-text:      hsl(220 15% 94%);
+  --tr-text-dim:  hsl(220 10% 65%);
+  --tr-text-mute: hsl(220 10% 45%);
+
+  /* Brand (reuse Prosflow indigo) */
+  --tr-brand:     hsl(248 90% 66%);
+  --tr-brand-dim: hsl(248 60% 30%);
+
+  /* Status */
+  --tr-ok:      hsl(152 70% 48%);
+  --tr-ok-bg:   hsl(152 60% 12%);
+  --tr-warn:    hsl(38 92% 56%);
+  --tr-warn-bg: hsl(38 60% 12%);
+  --tr-bad:     hsl(0 78% 60%);
+  --tr-bad-bg:  hsl(0 60% 12%);
+}
