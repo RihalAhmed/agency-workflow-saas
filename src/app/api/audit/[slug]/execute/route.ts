@@ -115,13 +115,22 @@ export async function POST(
 
     // Try to store the full result and category scores
     // These columns may not exist yet if the migration hasn't been run
+    let existingAuditResult: any = audit.audit_result;
+    if (typeof existingAuditResult === "string") {
+      try {
+        existingAuditResult = JSON.parse(existingAuditResult);
+      } catch (_) {
+        existingAuditResult = {};
+      }
+    }
+
     try {
       // Keep screenshots in the stored result (they are now compressed JPEGs, much lighter)
       const storedResult = { ...auditResult };
 
       // Preserve existing fields like companyName from the initial run
       updatePayload.audit_result = { 
-        ...(audit.audit_result || {}), 
+        ...(existingAuditResult || {}), 
         ...storedResult 
       };
       updatePayload.category_scores = auditResult.categoryScores;
@@ -135,15 +144,32 @@ export async function POST(
       .eq("id", audit.id);
 
     if (updateError) {
-      // If audit_result/category_scores columns don't exist, retry without them
-      console.warn("[Audit] Update with full result failed, retrying minimal:", updateError.message);
-      await supabase
+      // If full result failed (e.g. payload too large due to screenshots), retry without screenshots first
+      console.warn("[Audit] Update with full result failed, retrying without heavy screenshots:", updateError.message);
+      const { screenshots, ...storedWithoutScreenshots } = auditResult;
+      const retryResult = await supabase
         .from("audits")
         .update({
           status: "complete",
           overall_score: updatePayload.overall_score,
+          category_scores: auditResult.categoryScores,
+          audit_result: {
+            ...(existingAuditResult || {}),
+            ...storedWithoutScreenshots,
+          },
         })
         .eq("id", audit.id);
+
+      if (retryResult.error) {
+        console.warn("[Audit] Fallback update failed, retrying minimal:", retryResult.error.message);
+        await supabase
+          .from("audits")
+          .update({
+            status: "complete",
+            overall_score: updatePayload.overall_score,
+          })
+          .eq("id", audit.id);
+      }
     }
 
     console.log(`[Audit] Complete: ${audit.url} — Grade: ${auditResult.overallGrade}`);

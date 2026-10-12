@@ -23,6 +23,7 @@ import {
   Settings,
   Users,
   ArrowLeft,
+  ArrowRight,
   Home,
   Link2,
   ShieldCheck,
@@ -47,7 +48,8 @@ import { SocialResults } from "@/components/audit/SocialResults";
 import { RecommendationsList } from "@/components/audit/RecommendationsList";
 import { AuditHeader } from "@/components/audit/AuditHeader";
 import { AuditBlueprint } from "@/components/audit/loading/AuditBlueprint";
-import { RECOMMENDATION_TITLES, RECOMMENDATION_DESCRIPTIONS } from "@/lib/audit/recommendations";
+import { RECOMMENDATION_TITLES, RECOMMENDATION_DESCRIPTIONS, generateRecommendations } from "@/lib/audit/recommendations";
+import { TrustSegment } from "@/components/trust/TrustSegment";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -332,9 +334,18 @@ export default function AuditResults({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [processingStatus, setProcessingStatus] = useState<string | null>(null);
-  const [activeTab] = useState<string>("SEO Audit");
+  const [activeTab, setActiveTab] = useState<string>("SEO Audit");
   const [viewport, setViewport] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [completedTabs, setCompletedTabs] = useState<string[]>(["SEO Audit"]);
+
+  useEffect(() => {
+    if (activeTab === "Trust") {
+      setCompletedTabs((prev) => (prev.includes("Trust") ? prev : [...prev, "Trust"]));
+    } else if (activeTab === "Conversion") {
+      setCompletedTabs((prev) => (prev.includes("Conversion") ? prev : [...prev, "Conversion"]));
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     params.then((p) => setSlug(p.slug));
@@ -449,7 +460,24 @@ export default function AuditResults({
   }, [audit, scores, parsedAuditResult]);
 
   const recommendations = useMemo(() => {
-    const recs: any[] = parsedAuditResult?.recommendations || [];
+    let recs: any[] = parsedAuditResult?.recommendations || [];
+
+    // Fallback: If precomputed recommendations are not available or empty,
+    // generate them dynamically from the check scores (failed & warning checks)
+    if (!recs || recs.length === 0) {
+      const checkResults: any[] = scores
+        .filter((s) => s.score < 2) // fails (0) and warnings (1)
+        .map((s) => ({
+          key: s.check_key || s.key,
+          label: s.label,
+          category: s.category,
+          status: s.score === 0 ? "fail" : "warning",
+          score: s.score,
+          detail: s.detail,
+        }));
+      recs = generateRecommendations(checkResults);
+    }
+
     return recs.map(rec => {
       let key = rec.checkKey;
       if (!key) {
@@ -505,7 +533,7 @@ export default function AuditResults({
 
     return (
       <div className="flex-1 flex flex-col h-full bg-gradient-to-br from-[#000000] via-[#533afd] to-[#000000] rounded-[25px] overflow-hidden">
-        <AuditHeader activeTab={activeTab} companyName={audit?.company_name || audit?.audit_result?.companyName} url={audit?.url} />
+        <AuditHeader activeTab={activeTab} onTabChange={setActiveTab} completedTabs={completedTabs} companyName={audit?.company_name || audit?.audit_result?.companyName} url={audit?.url} />
         <AuditBlueprint domain={displayDomain} />
       </div>
     );
@@ -517,7 +545,7 @@ export default function AuditResults({
   if (error || audit?.status === "error") {
     return (
       <div className="flex-1 flex flex-col h-full bg-gradient-to-br from-[#000000] via-[#533afd] to-[#000000] rounded-[25px] overflow-hidden">
-        <AuditHeader activeTab={activeTab} companyName={audit?.company_name || audit?.audit_result?.companyName} url={audit?.url} />
+        <AuditHeader activeTab={activeTab} onTabChange={setActiveTab} completedTabs={completedTabs} companyName={audit?.company_name || audit?.audit_result?.companyName} url={audit?.url} />
         <div className="flex-1 flex flex-col bg-white rounded-[30px] mx-1 mb-1 relative overflow-hidden">
           <div className="flex-1 overflow-y-auto flex items-center justify-center p-8">
             <div className="bg-red-50 border border-red-200 rounded-2xl p-8 max-w-lg text-center">
@@ -543,11 +571,42 @@ export default function AuditResults({
 
   return (
     <div className="flex-1 flex flex-col h-full bg-gradient-to-br from-[#000000] via-[#533afd] to-[#000000] rounded-[25px] overflow-hidden">
-      <AuditHeader activeTab={activeTab} companyName={audit?.company_name || audit?.audit_result?.companyName} url={audit?.url} />
+      <AuditHeader activeTab={activeTab} onTabChange={setActiveTab} completedTabs={completedTabs} companyName={audit?.company_name || audit?.audit_result?.companyName} url={audit?.url} />
 
       <main className="flex-1 flex flex-col bg-white rounded-[30px] mx-1 mb-1 relative overflow-hidden">
         <div className="flex-1 overflow-y-auto w-full">
-          <div className="max-w-[1549px] mx-auto px-10 py-10 space-y-12">
+          <div className="max-w-[1549px] mx-auto px-10 py-10">
+            {/* Trust Segment (kept mounted in background so compute runs while viewing SEO) */}
+            <div style={{ display: activeTab === "Trust" ? "block" : "none" }}>
+              <TrustSegment
+                auditId={audit.id}
+                url={audit.url}
+                isActive={activeTab === "Trust"}
+                onNavigateTab={(tab) => {
+                  setActiveTab(tab);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              />
+            </div>
+
+            {/* Conversion Segment */}
+            <div style={{ display: activeTab === "Conversion" ? "block" : "none" }}>
+              <div className="flex flex-col items-center justify-center py-24 text-center">
+                <TrendingUp size={48} className="text-gray-300 dark:text-gray-600 mb-3" />
+                <h3 className="text-lg font-bold text-gray-700 dark:text-gray-300">Conversion Audit Segment</h3>
+                <p className="text-sm text-gray-400 max-w-sm mt-1">This segment is coming in the next release.</p>
+                <button
+                  onClick={() => setActiveTab("Trust")}
+                  className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-300 dark:border-gray-700 text-[13px] font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all cursor-pointer"
+                >
+                  <ArrowLeft size={14} />
+                  Back to Trust Audit
+                </button>
+              </div>
+            </div>
+
+            {/* SEO Audit Segment */}
+            <div style={{ display: activeTab === "SEO Audit" ? "block" : "none" }} className="space-y-12">
           {/* ——— Header Section (Image and Summary) ——— */}
           <div className="relative w-full rounded-[24px] bg-[#F7F9FF] overflow-hidden flex flex-col xl:flex-row items-center justify-between p-8 xl:p-10 gap-8 shadow-sm group/header">
             {/* Abstract background styling */}
@@ -568,6 +627,17 @@ export default function AuditResults({
                   <IconSopStar className="w-3.5 h-3.5 text-blue-600" />
                   <span className="text-[12px] font-semibold text-[#475569]">SEO Audit</span>
                 </div>
+                <button
+                  onClick={() => {
+                    setActiveTab("Trust");
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className="flex items-center gap-1.5 px-3.5 h-[30px] bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-full text-[12px] font-semibold shadow-sm transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+                  title="Proceed to Trust Audit"
+                >
+                  <span>Next</span>
+                  <ArrowRight size={13} />
+                </button>
               </div>
               <h1 className="text-[40px] font-bold text-[#111630] mb-3 leading-tight tracking-tight">
                 Audit Results
@@ -693,7 +763,7 @@ export default function AuditResults({
               </div>
               
               {/* Right Column: Recommendations (Desktop) */}
-              <div className="hidden lg:block w-[500px] shrink-0 relative">
+              <div className="hidden lg:block w-[500px] shrink-0 relative min-h-[500px]">
                 <div className="absolute inset-0 pointer-events-none">
                   <div className="sticky top-4 w-full h-full max-h-[80vh] pointer-events-auto">
                     <RecommendationsList recommendations={recommendations} />
@@ -715,11 +785,45 @@ export default function AuditResults({
             </div>
           )}
 
+          {/* ——— Next Step Navigation Banner ——— */}
+          <div className="w-full !mt-12 p-6 sm:p-8 rounded-[24px] bg-gradient-to-r from-[#0F172A] via-[#1E1B4B] to-[#312E81] text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl border border-white/10 relative overflow-hidden group">
+            {/* Decorative blur */}
+            <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-blue-500/15 rounded-full blur-2xl pointer-events-none" />
 
+            <div className="flex items-center gap-4 relative z-10">
+              <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center shrink-0 shadow-inner">
+                <ShieldCheck className="w-6 h-6 text-blue-400" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-blue-300 bg-blue-500/20 px-2 py-0.5 rounded-full border border-blue-400/20">
+                    Next Segment
+                  </span>
+                  <span className="text-[12px] text-gray-400">Step 2 of 3</span>
+                </div>
+                <h3 className="text-[18px] sm:text-[20px] font-bold text-white">
+                  Trust & Credibility Signals
+                </h3>
+                <p className="text-[13px] text-gray-300 max-w-xl mt-0.5 leading-relaxed">
+                  Analyze human face presence, credential chips, review platforms, and layout proof to build high-converting prospect pitches.
+                </p>
+              </div>
+            </div>
 
-
+            <button
+              onClick={() => {
+                setActiveTab("Trust");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className="relative z-10 flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-[14px] rounded-full shadow-lg shadow-blue-500/25 transition-all hover:scale-[1.02] active:scale-[0.98] shrink-0 cursor-pointer"
+            >
+              <span>Next: Trust Audit</span>
+              <ArrowRight size={16} />
+            </button>
+          </div>
         </div>
-        </div>
+      </div>
+    </div>
       </main>
     </div>
   );

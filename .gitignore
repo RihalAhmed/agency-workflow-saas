@@ -52,3 +52,4 @@ node_modules/
 # local data
 secrets/
 data/
+/scratch/

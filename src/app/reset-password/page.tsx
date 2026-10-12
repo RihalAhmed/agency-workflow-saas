@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Lock, ArrowRight, Loader2, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { createBrowserClient } from "@/lib/auth/supabase-browser";
 
 export default function ResetPasswordPage() {
   const [error, setError] = useState<string | null>(null);
@@ -28,6 +29,14 @@ export default function ResetPasswordPage() {
 
     startTransition(async () => {
       try {
+        const supabase = createBrowserClient();
+
+        // 1. First attempt to update password via client Supabase (handles URL hash recovery tokens)
+        const { error: clientError } = await supabase.auth.updateUser({
+          password,
+        });
+
+        // 2. Also sync with server route to ensure cookies/server sessions update
         const res = await fetch("/api/auth/reset-password", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -35,14 +44,15 @@ export default function ResetPasswordPage() {
         });
         const data = await res.json();
 
-        if (!res.ok) {
-          setError(data.error || "An error occurred");
+        // If client succeeded or server succeeded, treat as success
+        if (clientError && !res.ok) {
+          setError(data.error || clientError.message || "An error occurred");
           return;
         }
 
-        setSuccess("Password successfully updated. Redirecting...");
+        setSuccess("Password successfully updated. Redirecting to sign in...");
         setTimeout(() => {
-          router.push("/audit");
+          router.push("/login");
           router.refresh();
         }, 2000);
       } catch (err) {
@@ -89,6 +99,7 @@ export default function ResetPasswordPage() {
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
+                  autoComplete="new-password"
                   required
                   minLength={6}
                   className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-10 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
@@ -112,6 +123,7 @@ export default function ResetPasswordPage() {
                 <input
                   type={showConfirmPassword ? "text" : "password"}
                   name="confirmPassword"
+                  autoComplete="new-password"
                   required
                   minLength={6}
                   className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-10 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"

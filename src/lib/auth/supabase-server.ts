@@ -27,3 +27,36 @@ export async function createAuthClient() {
     }
   )
 }
+import { createClient } from '@supabase/supabase-js'
+
+export async function createServiceRoleClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      }
+    }
+  )
+}
+
+export async function findUserByEmail(email: string) {
+  try {
+    const admin = await createServiceRoleClient();
+    const normalized = email.trim().toLowerCase();
+    const { data, error } = await admin.auth.admin.listUsers({ perPage: 1000 });
+    if (error || !data?.users) {
+      return null;
+    }
+    const match = data.users.find(
+      (u) => u.email?.toLowerCase() === normalized
+    );
+    return match || null;
+  } catch (err) {
+    console.error("[findUserByEmail] error:", err);
+    return null;
+  }
+}

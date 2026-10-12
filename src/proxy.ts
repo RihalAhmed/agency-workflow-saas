@@ -27,28 +27,32 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  // IMPORTANT: DO NOT USE getSession AS IT DOES NOT REFRESH THE TOKEN
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
   const url = request.nextUrl.clone()
-
   const isAuthPage = url.pathname === '/login' || url.pathname === '/signup' || url.pathname.startsWith('/auth/') || url.pathname === '/forgot-password'
   const isProtectedRoute = url.pathname.startsWith('/audit') || url.pathname.startsWith('/dashboard') || url.pathname === '/reset-password'
 
-  // If user is authenticated and trying to access login/signup pages, redirect to /audit
-  if (user && isAuthPage) {
-    url.pathname = '/audit'
-    url.searchParams.delete('next')
-    return NextResponse.redirect(url)
-  }
+  try {
+    // IMPORTANT: DO NOT USE getSession AS IT DOES NOT REFRESH THE TOKEN
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-  // If user is not authenticated and trying to access a protected route
-  if (!user && isProtectedRoute) {
-    url.pathname = '/login'
-    url.searchParams.set('next', request.nextUrl.pathname + request.nextUrl.search)
-    return NextResponse.redirect(url)
+    // If user is authenticated and trying to access login/signup pages, redirect to /audit
+    if (user && isAuthPage) {
+      url.pathname = '/audit'
+      url.searchParams.delete('next')
+      return NextResponse.redirect(url)
+    }
+
+    // If user is not authenticated and trying to access a protected route
+    if (!user && isProtectedRoute) {
+      url.pathname = '/login'
+      url.searchParams.set('next', request.nextUrl.pathname + request.nextUrl.search)
+      return NextResponse.redirect(url)
+    }
+  } catch (err) {
+    // Gracefully fallback on auth check errors without breaking route resolution
+    console.error('[proxy] Auth error:', err)
   }
 
   return supabaseResponse

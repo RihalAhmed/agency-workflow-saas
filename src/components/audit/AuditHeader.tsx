@@ -1,5 +1,8 @@
-import React from "react";
-import { Search, ShieldCheck, TrendingUp } from "lucide-react";
+"use client";
+
+import React, { useState } from "react";
+import { Search, ShieldCheck, TrendingUp, Check } from "lucide-react";
+import { SopPanel } from "../sop/SopPanel";
 import { 
   IconCameraStar, 
   IconClipboardCheck, 
@@ -9,7 +12,20 @@ import {
   IconSopStar 
 } from "@/components/icons/AuditIcons";
 
-export function AuditHeader({ activeTab, companyName, url }: { activeTab: string; companyName?: string; url?: string }) {
+export function AuditHeader({
+  activeTab,
+  companyName,
+  url,
+  onTabChange,
+  completedTabs,
+}: {
+  activeTab: string;
+  companyName?: string;
+  url?: string;
+  onTabChange?: (tab: string) => void;
+  completedTabs?: string[];
+}) {
+  const [isSopOpen, setIsSopOpen] = useState(false);
   const displayTitle = companyName || (url ? url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '') : "Start an audit for");
 
   return (
@@ -81,33 +97,57 @@ export function AuditHeader({ activeTab, companyName, url }: { activeTab: string
               animation: drawIconStroke 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
             }
           `}</style>
-          {[
-            { id: "SEO Audit", icon: <Search size={14} className="tab-icon" /> },
-            { id: "Trust", icon: <ShieldCheck size={14} className="tab-icon" /> },
-            { id: "Conversion", icon: <TrendingUp size={14} className="tab-icon" /> }
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              className={`tab-btn w-[170px] h-[30px] flex items-center justify-center gap-2 text-[14px] font-bold rounded-t-[20px] transition-all group ${
-                activeTab === tab.id
-                  ? "bg-white text-black opacity-100 active-tab"
-                  : "bg-white text-black opacity-80 hover:opacity-100"
-              }`}
-            >
-              <div className={activeTab === tab.id ? "text-blue-600" : "text-gray-500 group-hover:text-blue-500"}>
-                {tab.icon}
-              </div>
-              {tab.id}
-            </button>
-          ))}
+          {(() => {
+            const tabOrder = ["SEO Audit", "Trust", "Conversion"];
+            const currentTabIdx = tabOrder.indexOf(activeTab);
+
+            return [
+              { id: "SEO Audit", icon: <Search size={14} className="tab-icon" /> },
+              { id: "Trust", icon: <ShieldCheck size={14} className="tab-icon" /> },
+              { id: "Conversion", icon: <TrendingUp size={14} className="tab-icon" /> }
+            ].map((tab) => {
+              const tabIdx = tabOrder.indexOf(tab.id);
+              const isActive = activeTab === tab.id;
+              const isDone = (completedTabs ? completedTabs.includes(tab.id) : false) || (tabIdx < currentTabIdx) || (tab.id === "SEO Audit" && activeTab !== "SEO Audit");
+
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => onTabChange?.(tab.id)}
+                  className={`tab-btn w-[170px] h-[30px] flex items-center justify-center gap-2 text-[14px] font-bold rounded-t-[20px] transition-all group ${
+                    isActive
+                      ? "bg-white text-black opacity-100 active-tab shadow-sm"
+                      : isDone
+                      ? "bg-white text-black opacity-100 hover:bg-gray-50 cursor-pointer shadow-sm"
+                      : "bg-white text-black opacity-80 hover:opacity-100 cursor-pointer"
+                  }`}
+                >
+                  <div className={isActive ? "text-blue-600" : isDone ? "text-emerald-600" : "text-gray-500 group-hover:text-blue-500"}>
+                    {isDone && !isActive ? (
+                      <Check size={14} strokeWidth={2.5} className="text-emerald-600" />
+                    ) : (
+                      tab.icon
+                    )}
+                  </div>
+                  {tab.id}
+                </button>
+              );
+            });
+          })()}
         </div>
 
         {/* Right: Blueprint */}
-        <button className="flex items-center justify-center w-[265px] h-[35px] bg-white rounded-l-[20px] text-[14px] font-bold text-black hover:bg-gray-100 transition-all mb-[10px]">
+        <button 
+          onClick={() => setIsSopOpen(true)}
+          aria-expanded={isSopOpen}
+          className="flex items-center justify-center w-[265px] h-[35px] bg-white rounded-l-[20px] text-[14px] font-bold text-black hover:bg-gray-100 transition-all mb-[10px]"
+        >
           <span className="mr-2"><IconSopStar /></span>
           My SOP/Blueprint
         </button>
       </div>
+
+      <SopPanel isOpen={isSopOpen} onClose={() => setIsSopOpen(false)} />
     </header>
   );
 }

@@ -15,6 +15,21 @@ export async function POST(request: Request) {
     }
 
     const { email } = result.data;
+
+    // Check if an account actually exists for this email
+    const { findUserByEmail } = await import("@/lib/auth/supabase-server");
+    const existingUser = await findUserByEmail(email);
+
+    if (!existingUser) {
+      return NextResponse.json(
+        {
+          error: "No account found with this email address. Please create an account first.",
+          notFound: true,
+        },
+        { status: 404 }
+      );
+    }
+
     const supabase = await createAuthClient();
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {

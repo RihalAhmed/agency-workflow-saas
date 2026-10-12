@@ -3,7 +3,7 @@ import {
   Lightbulb, FileText, MessageSquare, ImageIcon, Zap, Link, ChevronRight,
   Type, Heading, EyeOff, Bot, Lock, ListTree, Search, Map, FileCode,
   Globe, Activity, FileJson, Globe2, Server, HardDrive, Shrink, Bug,
-  Monitor, Mail, Layout, Share2, Phone, MapPin, ShieldAlert
+  Monitor, Mail, Layout, Share2, Phone, MapPin, ShieldAlert, CheckCircle2
 } from "lucide-react";
 
 export function RecommendationsList({ recommendations }: { recommendations: any[] }) {
@@ -21,7 +21,30 @@ export function RecommendationsList({ recommendations }: { recommendations: any[
     };
   }, []);
 
-  if (recommendations.length === 0) return null;
+  if (recommendations.length === 0) {
+    return (
+      <div className="w-full max-h-full min-h-[400px] flex flex-col bg-white border border-slate-200 rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.04)] overflow-hidden p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-11 h-11 rounded-[12px] bg-[#EEF2FF] flex items-center justify-center text-[#6366F1] shrink-0">
+            <Lightbulb size={22} strokeWidth={1.5} />
+          </div>
+          <div>
+            <h3 className="text-[20px] font-bold text-[#111630]">Recommendations</h3>
+            <p className="text-[12px] text-[#64748B]">Audit improvement actions</p>
+          </div>
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-slate-50/60 rounded-2xl border border-dashed border-slate-200">
+          <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
+            <CheckCircle2 size={24} />
+          </div>
+          <h4 className="text-[15px] font-semibold text-slate-800">No issues found</h4>
+          <p className="text-[13px] text-slate-500 max-w-[240px] mt-1">
+            All checks passed for this category. No critical improvements needed.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-h-full min-h-[400px] flex flex-col bg-white border border-slate-200 rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.04)] overflow-hidden">
@@ -59,7 +82,9 @@ export function RecommendationsList({ recommendations }: { recommendations: any[
               case 'robots_blocking': return Bot;
               case 'ssl_enabled': 
               case 'https_redirect': return Lock;
+              case 'canonical':
               case 'canonical_tag': return Link;
+              case 'headings':
               case 'heading_structure': return ListTree;
               case 'keyword_consistency': return Search;
               case 'content_amount': return FileText;
@@ -68,25 +93,31 @@ export function RecommendationsList({ recommendations }: { recommendations: any[
               case 'robots_txt': return FileCode;
               case 'html_lang': return Globe;
               case 'analytics': return Activity;
+              case 'schema':
               case 'structured_data': return FileJson;
               case 'hreflang': return Globe2;
               case 'serp_preview': return Search;
+              case 'pagespeed_insights':
               case 'performance_score':
+              case 'render_blocking':
               case 'lcp':
               case 'fcp':
               case 'tti':
               case 'cls':
               case 'tbt':
               case 'speed_index': return Zap;
-              case 'server_response_time': return Server;
+              case 'server_response_time':
+              case 'browser_caching': return Server;
               case 'page_size': return HardDrive;
+              case 'minification':
               case 'text_compression': return Shrink;
               case 'http2': return Globe;
               case 'js_errors': return Bug;
               case 'deprecated_html':
               case 'inline_styles': return FileCode;
               case 'mobile_viewport': return Monitor;
-              case 'favicon': return ImageIcon;
+              case 'favicon':
+              case 'image_optimization': return ImageIcon;
               case 'email_privacy': return Mail;
               case 'flash_usage':
               case 'iframes': return Layout;
@@ -96,7 +127,11 @@ export function RecommendationsList({ recommendations }: { recommendations: any[
               case 'open_graph':
               case 'twitter_cards':
               case 'facebook_pixel': return Share2;
+              case 'nap_phone':
+              case 'nap_name':
+              case 'nap_address':
               case 'address_phone': return Phone;
+              case 'local_schema':
               case 'local_business_schema':
               case 'google_business_profile': return MapPin;
               case 'dmarc':
@@ -107,6 +142,7 @@ export function RecommendationsList({ recommendations }: { recommendations: any[
               case 'rendered_content_ratio': return FileText;
               case 'llms_txt': return FileCode;
               case 'ai_crawlers_blocked': return Bot;
+              case 'links': return Link;
               default: return FileText;
             }
           };

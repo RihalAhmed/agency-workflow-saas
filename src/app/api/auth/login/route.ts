@@ -18,15 +18,60 @@ export async function POST(request: Request) {
     }
 
     const { email, password } = result.data;
+    const normalizedEmail = email.trim().toLowerCase();
     const supabase = await createAuthClient();
 
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: normalizedEmail,
       password,
     });
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      console.error("[Login] Supabase auth error:", {
+        message: error.message,
+        status: error.status,
+        code: (error as any).code,
+      });
+
+      // Check if user exists in the system
+      const { findUserByEmail } = await import("@/lib/auth/supabase-server");
+      const existingUser = await findUserByEmail(normalizedEmail);
+
+      if (!existingUser) {
+        return NextResponse.json(
+          {
+            error: "No account found with this email. Please create an account first.",
+            notFound: true,
+          },
+          { status: 400 }
+        );
+      }
+
+      if (error.message?.toLowerCase().includes("email not confirmed")) {
+        return NextResponse.json(
+          {
+            error: "Please confirm your email address before logging in.",
+          },
+          { status: 400 }
+        );
+      }
+
+      if (error.status === 429) {
+        return NextResponse.json(
+          {
+            error: "Too many login attempts. Please wait a few moments and try again.",
+          },
+          { status: 429 }
+        );
+      }
+
+      return NextResponse.json(
+        {
+          error: "Incorrect password. Please try again or use Forgot Password to reset it.",
+          invalidPassword: true,
+        },
+        { status: 400 }
+      );
     }
 
     const safeRedirectPath = getSafeRedirect(next, "/audit");

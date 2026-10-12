@@ -130,42 +130,52 @@ export function Sidebar({
       {/* Top Half: Brand Mark + Primary Navigation + Section Groups */}
       <div className="flex flex-col w-full min-w-0">
         {/* Brand Area */}
-        <div
-          className={`flex items-center mb-6 h-9 ${
-            collapsed ? "justify-center" : "justify-between px-1"
-          }`}
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-[30px] h-[30px] rounded-[7px] bg-[#533afd] flex items-center justify-center shrink-0 shadow-xs">
+        {collapsed ? (
+          <div className="flex flex-col items-center gap-2.5 mb-6">
+            <div className="w-[30px] h-[30px] flex items-center justify-center shrink-0">
               <Image
-                src="/logo-icon.svg"
-                alt="Prosflow Brand Icon"
-                width={18}
-                height={18}
-                className="w-4 h-4 brightness-0 invert object-contain"
+                src="/prosflow-icon.svg"
+                alt="Prosflow"
+                width={30}
+                height={30}
+                className="w-[30px] h-[30px] object-contain"
+                priority
               />
             </div>
-            {!collapsed && (
-              <span className="text-[17px] font-bold text-[#0f172a] tracking-tight truncate font-sans">
-                Prosflow
-              </span>
-            )}
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setCollapsed(!collapsed)}
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className="p-1.5 rounded-[6px] text-[#64748b] hover:text-[#0f172a] hover:bg-black/[0.04] transition-colors cursor-pointer shrink-0"
-            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            {collapsed ? (
+            <button
+              type="button"
+              onClick={() => setCollapsed(false)}
+              aria-label="Expand sidebar"
+              className="p-1.5 rounded-[6px] text-[#64748b] hover:text-[#0f172a] hover:bg-black/[0.04] transition-colors cursor-pointer"
+              title="Expand sidebar"
+            >
               <PanelLeftOpen size={16} />
-            ) : (
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between px-1 mb-6 h-9">
+            <div className="flex items-center min-w-0">
+              <Image
+                src="/prosflow-logo.svg"
+                alt="Prosflow"
+                width={116}
+                height={30}
+                className="h-[28px] w-auto object-contain"
+                priority
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setCollapsed(true)}
+              aria-label="Collapse sidebar"
+              className="p-1.5 rounded-[6px] text-[#64748b] hover:text-[#0f172a] hover:bg-black/[0.04] transition-colors cursor-pointer shrink-0"
+              title="Collapse sidebar"
+            >
               <PanelLeftClose size={16} />
-            )}
-          </button>
-        </div>
+            </button>
+          </div>
+        )}
 
         {/* Primary Nav List */}
         <nav className="flex flex-col gap-1 w-full" aria-label="Main Navigation">

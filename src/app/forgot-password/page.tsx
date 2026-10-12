@@ -6,12 +6,14 @@ import Link from "next/link";
 
 export default function ForgotPasswordPage() {
   const [error, setError] = useState<string | null>(null);
+  const [isNotFound, setIsNotFound] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+    setIsNotFound(false);
     setSuccess(null);
 
     const formData = new FormData(e.currentTarget);
@@ -28,6 +30,7 @@ export default function ForgotPasswordPage() {
 
         if (!res.ok) {
           setError(data.error || "An error occurred");
+          setIsNotFound(Boolean(data.notFound));
           return;
         }
 
@@ -55,8 +58,21 @@ export default function ForgotPasswordPage() {
 
         {error && (
           <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm flex items-start gap-3">
-            <div className="mt-0.5">⚠️</div>
-            <p>{error}</p>
+            <div className="mt-0.5 text-base">⚠️</div>
+            <div className="flex-1">
+              <p>{error}</p>
+              {isNotFound && (
+                <div className="mt-3">
+                  <Link
+                    href="/signup"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-lg transition-colors shadow-sm"
+                  >
+                    <span>Create an account</span>
+                    <ArrowRight size={13} />
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         )}
 

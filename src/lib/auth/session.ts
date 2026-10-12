@@ -17,3 +17,11 @@ export async function requireUser() {
   }
   return user;
 }
+
+export async function requireApiUser() {
+  const user = await getCurrentUser();
+  if (!user) {
+    return { errorResponse: new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { 'Content-Type': 'application/json' } }), user: null };
+  }
+  return { errorResponse: null, user };
+}

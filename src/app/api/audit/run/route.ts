@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import { fetchRawHtml } from "@/lib/audit/fetchers/fetchRawHtml";
 import { extractCompanyName } from "@/lib/audit/extractCompanyName";
+import { getCurrentUser } from "@/lib/auth/session";
 
 export async function POST(req: Request) {
   try {
@@ -38,6 +39,7 @@ export async function POST(req: Request) {
       Date.now().toString().slice(-6);
 
     const supabase = createServerClient();
+    const user = await getCurrentUser().catch(() => null);
 
     // Try to fetch HTML and extract company name (timeout early so we don't block for long)
     let companyName = "";
@@ -55,6 +57,10 @@ export async function POST(req: Request) {
       status: "running",
       audit_result: companyName ? { companyName } : {},
     };
+
+    if (user?.id) {
+      insertPayload.user_id = user.id;
+    }
 
     // Add target_keyword if provided (column may not exist pre-migration)
     if (targetKeyword) {

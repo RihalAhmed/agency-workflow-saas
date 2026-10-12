@@ -92,6 +92,21 @@ const PRIORITY_MAP: Record<string, Priority> = {
   rendered_content_ratio: "Medium",
   llms_txt: "Medium",
   ai_crawlers_blocked: "Low",
+
+  // Key Aliases & Additional Checks
+  headings: "Medium",
+  canonical: "High",
+  schema: "Low",
+  local_schema: "Medium",
+  pagespeed_insights: "High",
+  links: "Medium",
+  render_blocking: "High",
+  browser_caching: "Medium",
+  image_optimization: "Medium",
+  minification: "Medium",
+  nap_name: "Medium",
+  nap_phone: "Medium",
+  nap_address: "Medium",
 };
 
 // Human-readable recommendation titles
@@ -142,6 +157,19 @@ export const RECOMMENDATION_TITLES: Record<string, string> = {
   llm_content_analysis: "Improve content structure for AI search readiness",
   address_phone: "Display your business address and phone on the page",
   local_business_schema: "Add LocalBusiness schema markup",
+  headings: "Fix heading hierarchy — avoid skipping levels",
+  canonical: "Add a canonical tag to prevent duplicate content",
+  schema: "Add Schema.org structured data markup",
+  local_schema: "Add LocalBusiness schema markup",
+  pagespeed_insights: "Improve overall page performance score",
+  links: "Audit and resolve broken or low-quality links",
+  render_blocking: "Eliminate render-blocking resources",
+  browser_caching: "Configure browser caching for static assets",
+  image_optimization: "Compress and optimize images for the web",
+  minification: "Minify CSS and JavaScript files",
+  nap_name: "Ensure company name is consistent across pages",
+  nap_phone: "Display phone number consistently across pages",
+  nap_address: "Display physical address consistently on the page",
 };
 
 // Actionable solutions mapped directly to recommendations
@@ -192,6 +220,19 @@ export const RECOMMENDATION_DESCRIPTIONS: Record<string, string> = {
   llm_content_analysis: "Your content lacks the dense, factual structure that AI engines (like ChatGPT or Perplexity) favor. Add clear headings, bullet points, and definitive answers.",
   address_phone: "Local businesses must clearly display their Name, Address, and Phone number (NAP) consistently to rank in local map packs.",
   local_business_schema: "Inject LocalBusiness JSON-LD markup to feed your exact operating hours, location, and reviews directly to Google Maps and Search.",
+  headings: "Ensure your headings follow a logical hierarchy (H1 -> H2 -> H3) without skipping levels for better accessibility and SEO.",
+  canonical: "Specify a self-referencing canonical tag to prevent search engines from penalizing your site for duplicate content.",
+  schema: "Implement Schema markup (JSON-LD) to help search engines understand your content and qualify for rich snippets in search results.",
+  local_schema: "Inject LocalBusiness JSON-LD markup to feed your exact operating hours, location, and reviews directly to Google Maps and Search.",
+  pagespeed_insights: "Your overall Core Web Vitals and lab data indicate poor performance. Review the speed metrics below and optimize accordingly.",
+  links: "Fix broken internal links and avoid linking to non-functional or untrusted external pages.",
+  render_blocking: "Defer render-blocking JavaScript and inline critical CSS to speed up first paint.",
+  browser_caching: "Leverage long cache lifetimes (Cache-Control) for static assets like logos, CSS, and fonts.",
+  image_optimization: "Convert images to modern formats like WebP or AVIF and compress them to save bandwidth.",
+  minification: "Minify JavaScript and CSS files to reduce parse and download times.",
+  nap_name: "Maintain exact brand consistency across all directory listings and header/footer elements.",
+  nap_phone: "Ensure phone numbers are clickable and formatted consistently for mobile users and crawlers.",
+  nap_address: "Display complete street addresses consistent with your Google Business Profile.",
 };
 
 /**

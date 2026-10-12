@@ -9,6 +9,7 @@ type AuthMode = "login" | "signup";
 
 export function AuthForm({ mode }: { mode: AuthMode }) {
   const [error, setError] = useState<string | null>(null);
+  const [isNotFound, setIsNotFound] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [showPassword, setShowPassword] = useState(false);
@@ -22,6 +23,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+    setIsNotFound(false);
     setSuccess(null);
 
     const formData = new FormData(e.currentTarget);
@@ -51,6 +53,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 
         if (!res.ok) {
           setError(data.error || "An error occurred");
+          setIsNotFound(Boolean(data.notFound));
           return;
         }
 
@@ -83,8 +86,21 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 
       {error && (
         <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm flex items-start gap-3">
-          <div className="mt-0.5">⚠️</div>
-          <p>{error}</p>
+          <div className="mt-0.5 text-base">⚠️</div>
+          <div className="flex-1">
+            <p>{error}</p>
+            {isNotFound && isLogin && (
+              <div className="mt-3">
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-lg transition-colors shadow-sm"
+                >
+                  <span>Create an account</span>
+                  <ArrowRight size={13} />
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -103,6 +119,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
             <input
               type="email"
               name="email"
+              autoComplete="email"
               required
               className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
               placeholder="you@example.com"
@@ -124,6 +141,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
             <input
               type={showPassword ? "text" : "password"}
               name="password"
+              autoComplete={isLogin ? "current-password" : "new-password"}
               required
               minLength={isLogin ? 1 : 6}
               className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-10 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
@@ -148,6 +166,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
               <input
                 type={showConfirmPassword ? "text" : "password"}
                 name="confirmPassword"
+                autoComplete="new-password"
                 required
                 minLength={6}
                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-10 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
